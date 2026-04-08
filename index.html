@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trades Prospector — Offshore 24/7</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f0e;--surface:#151817;--surface2:#1c1f1d;--border:#2a2e2b;
+  --accent:#b5f0a0;--accent2:#7dd86a;--text:#e8ede9;--muted:#7a8c7d;
+  --danger:#f07070;--warning:#f0c070;--info:#70c0f0;
+  --mono:'DM Mono',monospace;--display:'Syne',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;min-height:100vh}
+.shell{max-width:1200px;margin:0 auto;padding:28px 24px 80px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:14px}
+.header h1{font-family:var(--display);font-size:22px;font-weight:700;color:var(--accent)}
+.header .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.tabs{display:flex;gap:2px}
+.tab{font-family:var(--mono);font-size:12px;padding:6px 14px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s}
+.tab.active{background:var(--accent);color:#0d0f0e;border-color:var(--accent);font-weight:500}
+.tab:hover:not(.active){border-color:var(--accent);color:var(--text)}
+.pane{display:none}.pane.active{display:block}
+
+/* Source intel banner */
+.intel-banner{padding:12px 16px;background:rgba(112,192,240,.06);border:1px solid rgba(112,192,240,.2);border-radius:6px;margin-bottom:16px;font-size:12px;color:var(--info);line-height:1.6}
+.intel-banner strong{color:var(--text)}
+
+/* Config */
+.config-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.config-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.field-wrap{display:flex;flex-direction:column;gap:5px}
+.field-wrap label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+input[type=text],input[type=password],input[type=number],select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:4px;outline:none;width:100%;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--accent)}
+select option{background:var(--surface2)}
+
+/* Postcode mode */
+.pc-tabs{display:flex;gap:6px;margin-bottom:10px}
+.pc-tab{font-size:11px;padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--mono)}
+.pc-tab.active{background:var(--accent);color:#0d0f0e;border-color:var(--accent)}
+
+/* Buttons */
+.btn{background:var(--accent);color:#0d0f0e;border:none;font-family:var(--display);font-size:13px;font-weight:700;padding:9px 20px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn:hover{background:var(--accent2)}.btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+.btn-stop{background:var(--danger)!important;color:#fff!important}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--border);font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:4px;cursor:pointer;transition:all .15s}
+.btn-ghost:hover{border-color:var(--accent);background:rgba(181,240,160,.06)}.btn-ghost:disabled{opacity:.35;cursor:not-allowed}
+.btn-warning{background:rgba(240,192,112,.1);color:var(--warning);border:1px solid rgba(240,192,112,.3);font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:4px;cursor:pointer}
+
+/* Status */
+.status-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.dot.active{background:var(--accent);animation:pulse 1.2s infinite}.dot.done{background:var(--accent)}.dot.error{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.progress-list{padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;display:none;max-height:120px;overflow-y:auto}
+.progress-list.visible{display:block}
+.prog-item{font-size:11px;color:var(--muted);padding:2px 0;display:flex;gap:8px}
+.prog-item.done{color:var(--accent)}.prog-item.err{color:var(--danger)}.prog-item.skip{color:var(--accent2)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:9px 14px}
+.stat-card .val{font-family:var(--display);font-size:20px;font-weight:700;color:var(--accent)}
+.stat-card .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* Table */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.count-badge{font-size:11px;color:var(--muted)}.count-badge strong{color:var(--accent)}
+.table-wrap{border:1px solid var(--border);border-radius:4px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+thead th{background:var(--surface);text-align:left;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:9px 12px;vertical-align:top;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.cell-primary{color:var(--text)}.cell-secondary{color:var(--muted);font-size:12px}.cell-dim{color:var(--muted);font-size:11px}
+.chip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px}
+.chip-mobile{background:rgba(181,240,160,.12);color:var(--accent);border:1px solid rgba(181,240,160,.2)}
+.chip-no-name{background:rgba(240,192,112,.1);color:var(--warning);border:1px solid rgba(240,192,112,.2)}
+.chip-complete{background:rgba(181,240,160,.2);color:var(--accent2);border:1px solid rgba(181,240,160,.3)}
+.rating-bar{display:flex;gap:2px;align-items:center;font-size:11px;color:var(--muted)}
+.remove-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:0 3px}.remove-btn:hover{color:var(--danger)}
+input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
+.empty-state{padding:40px 24px;text-align:center;color:var(--muted);font-size:12px}
+
+/* Queue bar */
+.queue-bar{display:none;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:10px}
+.queue-bar.visible{display:block}
+
+/* Cost estimate */
+.cost-bar{padding:8px 14px;background:rgba(181,240,160,.04);border:1px solid rgba(181,240,160,.15);border-radius:4px;margin-bottom:10px;font-size:11px;color:var(--muted);display:flex;gap:20px}
+.cost-bar span{color:var(--accent)}
+
+/* Info/Settings panes */
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:14px}
+.info-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px}
+.info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.info-row:last-child{border-bottom:none}
+.info-row .label{color:var(--muted)}.info-row .value{color:var(--text);font-weight:500}
+.info-row .value.green{color:var(--accent)}.info-row .value.orange{color:var(--warning)}.info-row .value.red{color:var(--danger)}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="shell">
+
+<div class="header">
+  <div>
+    <h1>Trades Prospector</h1>
+    <div class="sub">Offshore 24/7 — Hipages-powered · No Claude enrichment needed · ~$0.015/lead</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('prospect')">Prospect</button>
+    <button class="tab" onclick="switchTab('info')">Source Intel</button>
+    <button class="tab" onclick="switchTab('settings')">Settings</button>
+  </div>
+</div>
+
+<!-- ═══ PROSPECT ═══ -->
+<div class="pane active" id="pane-prospect">
+
+  <div class="intel-banner">
+    <strong>Why Hipages?</strong> Tradies don't publish their mobile on Google Maps or their website — they publish it on Hipages where customers contact them directly. This tool scrapes Hipages by category and postcode, returning business name + phone number instantly with no Claude enrichment needed. Cost: ~$0.002/lead via Apify. Optional name lookup adds ~$0.013/lead. Total: <strong>~$0.015/lead vs $0.40/lead</strong> via Google Maps enrichment.
+  </div>
+
+  <div class="config-row">
+    <div class="field-wrap" style="grid-column:span 2">
+      <label>Trade Category</label>
+      <select id="category">
+        <optgroup label="HVAC & Climate">
+          <option value="Air Conditioning">Air Conditioning</option>
+          <option value="Heating Systems">Heating Systems</option>
+          <option value="Ventilation">Ventilation</option>
+        </optgroup>
+        <optgroup label="Electrical">
+          <option value="Electricians">Electricians</option>
+          <option value="EV Charger Installation">EV Charger Installation</option>
+          <option value="Home Automation">Home Automation</option>
+          <option value="Solar Power">Solar Power</option>
+        </optgroup>
+        <optgroup label="Plumbing & Gas">
+          <option value="Plumbers">Plumbers</option>
+          <option value="Gas Fitters">Gas Fitters</option>
+          <option value="Hot Water Systems">Hot Water Systems</option>
+        </optgroup>
+        <optgroup label="Building & Construction">
+          <option value="Builders">Builders</option>
+          <option value="Home Renovations">Home Renovations</option>
+          <option value="Carpenters">Carpenters</option>
+          <option value="Concreters">Concreters</option>
+          <option value="Roof Repairs">Roof Repairs</option>
+          <option value="Roofing">Roofing</option>
+          <option value="Painters">Painters</option>
+          <option value="Plastering">Plastering</option>
+          <option value="Tilers">Tilers</option>
+        </optgroup>
+        <optgroup label="Property Services">
+          <option value="Handyman">Handyman</option>
+          <option value="Pest Inspections">Pest Inspections</option>
+          <option value="Landscaper Gardener">Landscaper Gardener</option>
+          <option value="Pool Maintenance">Pool Maintenance</option>
+          <option value="Cleaning Services">Cleaning Services</option>
+          <option value="Rubbish Removal">Rubbish Removal</option>
+          <option value="Security Screens Doors">Security Screens Doors</option>
+          <option value="Solar Panel Cleaners">Solar Panel Cleaners</option>
+        </optgroup>
+        <optgroup label="Other Trades">
+          <option value="Locksmiths">Locksmiths</option>
+          <option value="Glazier">Glazier</option>
+          <option value="Fences">Fences</option>
+          <option value="Decking">Decking</option>
+          <option value="Insulation">Insulation</option>
+          <option value="Waterproofing">Waterproofing</option>
+          <option value="Scaffolding">Scaffolding</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field-wrap">
+      <label>State Filter (for export)</label>
+      <select id="stateFilter">
+        <option value="">All states</option>
+        <option value="QLD">QLD</option>
+        <option value="NSW">NSW</option>
+        <option value="VIC">VIC</option>
+        <option value="WA">WA</option>
+        <option value="SA">SA</option>
+      </select>
+    </div>
+    <div class="field-wrap">
+      <label>Max Results</label>
+      <select id="maxResults">
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Postcode mode -->
+  <div style="margin-bottom:12px">
+    <div class="pc-tabs">
+      <button class="pc-tab active" onclick="setPcMode('single',this)">Single Postcode</button>
+      <button class="pc-tab" onclick="setPcMode('range',this)">Postcode Range</button>
+      <button class="pc-tab" onclick="setPcMode('city',this)">City / Region</button>
+    </div>
+    <div id="pcSingleWrap" style="display:flex;gap:10px;align-items:flex-end">
+      <div class="field-wrap" style="width:160px"><label>Postcode</label><input type="number" id="pcSingle" placeholder="4000" min="1000" max="9999"/></div>
+    </div>
+    <div id="pcRangeWrap" style="display:none;flex-direction:column;gap:6px">
+      <div class="field-wrap" style="width:240px"><label>Postcode Range (e.g. 4000-4100)</label><input type="text" id="pcRange" placeholder="4000-4100"/></div>
+      <div style="font-size:11px;color:var(--muted)" id="rangeHint2"></div>
+    </div>
+    <div id="pcCityWrap" style="display:none">
+      <div class="field-wrap" style="width:280px">
+        <label>City / Region</label>
+        <select id="cityPreset2">
+          <option value="">Select...</option>
+          <option value="4000-4299">Brisbane Metro (4000–4299)</option>
+          <option value="4200-4299">Gold Coast (4200–4299)</option>
+          <option value="4550-4575">Sunshine Coast (4550–4575)</option>
+          <option value="6000-6199">Perth Metro (6000–6199)</option>
+          <option value="2000-2199">Sydney Metro (2000–2199)</option>
+          <option value="3000-3199">Melbourne Metro (3000–3199)</option>
+          <option value="5000-5099">Adelaide (5000–5099)</option>
+          <option value="4810-4825">Townsville (4810–4825)</option>
+          <option value="4868-4878">Cairns (4868–4878)</option>
+          <option value="4350-4355">Toowoomba (4350–4355)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="cost-bar" id="costBar">
+    Estimated cost: <span id="costEst">~$0.20</span> (Apify scrape only, no Claude)
+    &nbsp;·&nbsp; With name lookup: <span id="costEstNames">~$1.50</span>
+    &nbsp;·&nbsp; Postcodes to run: <span id="pcCount">1</span>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+    <button class="btn" id="runBtn" onclick="toggleRun()">Scrape Hipages ›</button>
+    <button class="btn-ghost" id="getNames" onclick="getOwnerNames()" disabled>Get Owner Names (Claude)</button>
+    <button class="btn-ghost" id="exportBtn" onclick="exportCSV()" disabled>Export CSV → Zoho</button>
+    <div style="margin-left:auto;font-size:11px;color:var(--muted)">Name lookup: ~$0.013/business · Only run if needed</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="val" id="statTotal">0</div><div class="lbl">Scraped</div></div>
+    <div class="stat-card"><div class="val" id="statPhone">0</div><div class="lbl">Have Phone</div></div>
+    <div class="stat-card"><div class="val" id="statNamed">0</div><div class="lbl">Named</div></div>
+    <div class="stat-card"><div class="val" id="statComplete">0</div><div class="lbl">Name + Phone</div></div>
+    <div class="stat-card"><div class="val" id="statDupe">0</div><div class="lbl">Dupes Skipped</div></div>
+    <div class="stat-card"><div class="val" id="statCost" style="font-size:14px">$0.00</div><div class="lbl">Est. Cost</div></div>
+  </div>
+
+  <div class="queue-bar" id="queueBar">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px">
+      <span id="queueLabel">Running...</span><span id="queueCount"></span>
+    </div>
+    <div style="background:var(--surface2);border-radius:3px;height:5px;overflow:hidden">
+      <div id="queueFill" style="height:100%;background:var(--accent);width:0%;transition:width .4s;border-radius:3px"></div>
+    </div>
+  </div>
+
+  <div class="status-bar"><div class="dot" id="dot"></div><span id="statusMsg">Select a trade category and postcode, then click Scrape Hipages.</span></div>
+  <div class="progress-list" id="progressList"></div>
+
+  <div class="toolbar">
+    <div class="count-badge"><strong id="leadCount">0</strong> businesses · <strong id="selectedCount">0</strong> selected</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ghost" onclick="selectAll()">Select all</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <colgroup>
+        <col style="width:28px"/><col style="width:220px"/><col style="width:160px"/>
+        <col style="width:120px"/><col style="width:100px"/><col style="width:80px"/>
+        <col style="width:70px"/><col style="width:80px"/><col style="width:40px"/>
+      </colgroup>
+      <thead>
+        <tr><th></th><th>Business</th><th>Owner Name</th><th>Phone</th><th>Suburb</th><th>State</th><th>Rating</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="9"><div class="empty-state">Select a category and postcode, then click Scrape Hipages.</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SOURCE INTEL ═══ -->
+<div class="pane" id="pane-info">
+  <div class="info-card">
+    <h3>Why Hipages for Trades?</h3>
+    <div class="info-row"><span class="label">Google Maps + Claude</span><span class="value red">~$0.40/lead · Low hit rate for trades · Auto electricians in results</span></div>
+    <div class="info-row"><span class="label">Hipages scraper</span><span class="value green">~$0.015/lead · Phone direct from listing · 100% trade businesses</span></div>
+    <div class="info-row"><span class="label">Why tradies use Hipages</span><span class="value">Customers contact them directly — mobile is the whole point of the listing</span></div>
+    <div class="info-row"><span class="label">Categories available</span><span class="value">120+ trade categories across all Australian states</span></div>
+    <div class="info-row"><span class="label">False positive rate</span><span class="value green">Near zero — all results are verified trade businesses</span></div>
+  </div>
+  <div class="info-card">
+    <h3>Cost Breakdown</h3>
+    <div class="info-row"><span class="label">Apify scrape (Hipages)</span><span class="value green">~$0.002 per business</span></div>
+    <div class="info-row"><span class="label">Owner name lookup (Claude)</span><span class="value orange">~$0.013 per business (optional)</span></div>
+    <div class="info-row"><span class="label">Total with name</span><span class="value">~$0.015 per lead</span></div>
+    <div class="info-row"><span class="label">100 leads</span><span class="value">~$1.50 total</span></div>
+    <div class="info-row"><span class="label">vs Google Maps + Claude</span><span class="value red">~$40.00 for same 100 leads</span></div>
+  </div>
+  <div class="info-card">
+    <h3>Industry Source Map</h3>
+    <div class="info-row"><span class="label">Trades (aircon, electrical, plumbing)</span><span class="value green">✓ Hipages — use this tool</span></div>
+    <div class="info-row"><span class="label">Real estate agents</span><span class="value green">✓ Lead Prospector (Google Maps + REIWA)</span></div>
+    <div class="info-row"><span class="label">Accountants, lawyers, mortgage brokers</span><span class="value">Lead Prospector (Google Maps)</span></div>
+    <div class="info-row"><span class="label">IT companies, recruitment agencies</span><span class="value orange">LinkedIn scraper (Job Board Scraper tool)</span></div>
+    <div class="info-row"><span class="label">Companies hiring offshore already</span><span class="value orange">Job Board Scraper (Seek, OnlineJobs.ph)</span></div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="pane" id="pane-settings">
+  <div class="info-card">
+    <h3>API Keys</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+      <div class="field-wrap"><label>Apify Token</label><input type="password" id="apifyKey" placeholder="apify_api_..."/></div>
+      <div class="field-wrap"><label>Anthropic Key (name lookup only)</label><input type="password" id="apiKey" placeholder="sk-ant-..."/></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <div class="field-wrap" style="width:200px"><label>Run By</label><input type="text" id="runBy" placeholder="e.g. Stefan"/></div>
+      <button class="btn" style="margin-top:auto" onclick="saveKeys()">Save Keys</button>
+    </div>
+  </div>
+  <div class="info-card">
+    <h3>Key Status</h3>
+    <div class="info-row"><span class="label">Apify token</span><span class="value" id="apifyStatus">Not saved</span></div>
+    <div class="info-row"><span class="label">Anthropic key</span><span class="value" id="anthropicStatus">Not saved (optional — only for name lookup)</span></div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+const APIFY_DEFAULT='apify_api_HQFFFPdRkofUFBEHnFfybdaBvye7YT1LhCbo';
+const ACTOR_ID='websift~hipages-lead-extractor';
+const SB_URL='https://ojifhwprkapdqsfsufrl.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qaWZod3Bya2FwZHFzZnN1ZnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI0MjcsImV4cCI6MjA4OTI2ODQyN30.f8UZw7qCoOFG6MosRU3FCCyihphFfGh_-HzF7B5l_T4';
+
+let leads=[],isRunning=false,stopRequested=false,dupeCount=0;
+let pcMode='single';
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  const ak=localStorage.getItem('tp_ak'),apk=localStorage.getItem('tp_apify'),rb=localStorage.getItem('tp_rb');
+  if(ak){document.getElementById('apiKey').value=ak;document.getElementById('anthropicStatus').textContent='Saved ✓';document.getElementById('anthropicStatus').className='value green';}
+  document.getElementById('apifyKey').value=apk||APIFY_DEFAULT;
+  if(apk||APIFY_DEFAULT){document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
+  if(rb)document.getElementById('runBy').value=rb;
+  updateCostEst();
+  document.getElementById('pcRange').addEventListener('input',()=>{
+    const v=document.getElementById('pcRange').value.trim();
+    const m=v.match(/^(\d{4})[-–](\d{4})$/);
+    if(m){
+      const count=parseInt(m[2])-parseInt(m[1])+1;
+      document.getElementById('rangeHint2').textContent=count>0&&count<=500?`${count} postcodes`:'';
+    }
+    updateCostEst();
+  });
+});
+
+function saveKeys(){
+  const ak=document.getElementById('apiKey').value.trim();
+  const apk=document.getElementById('apifyKey').value.trim();
+  const rb=document.getElementById('runBy').value.trim();
+  if(ak){localStorage.setItem('tp_ak',ak);document.getElementById('anthropicStatus').textContent='Saved ✓';document.getElementById('anthropicStatus').className='value green';}
+  if(apk){localStorage.setItem('tp_apify',apk);document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
+  if(rb)localStorage.setItem('tp_rb',rb);
+  setStatus('Keys saved.','done');
+}
+
+function switchTab(name){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`pane-${name}`).classList.add('active');
+  document.querySelectorAll(`.tab[onclick="switchTab('${name}')"]`).forEach(t=>t.classList.add('active'));
+}
+
+function setPcMode(mode,el){
+  pcMode=mode;
+  document.querySelectorAll('.pc-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pcSingleWrap').style.display=mode==='single'?'flex':'none';
+  document.getElementById('pcRangeWrap').style.display=mode==='range'?'flex':'none';
+  document.getElementById('pcCityWrap').style.display=mode==='city'?'block':'none';
+  updateCostEst();
+}
+
+function getPostcodes(){
+  if(pcMode==='single'){
+    const pc=document.getElementById('pcSingle').value.trim();
+    return pc.length===4?[parseInt(pc)]:[];
+  }
+  if(pcMode==='range'){
+    const v=document.getElementById('pcRange').value.trim();
+    const m=v.match(/^(\d{4})[-–](\d{4})$/);
+    if(!m)return[];
+    const start=parseInt(m[1]),end=parseInt(m[2]);
+    const pcs=[];for(let i=start;i<=Math.min(end,start+499);i++)pcs.push(i);
+    return pcs;
+  }
+  if(pcMode==='city'){
+    const v=document.getElementById('cityPreset2').value;
+    if(!v)return[];
+    const[s,e]=v.split('-').map(Number);
+    const pcs=[];for(let i=s;i<=e;i++)pcs.push(i);
+    return pcs;
+  }
+  return[];
+}
+
+function updateCostEst(){
+  const pcs=getPostcodes();
+  const max=parseInt(document.getElementById('maxResults').value)||100;
+  const est=pcs.length*max*0.002;
+  const estNames=pcs.length*max*0.015;
+  document.getElementById('costEst').textContent=`~$${est.toFixed(2)}`;
+  document.getElementById('costEstNames').textContent=`~$${estNames.toFixed(2)}`;
+  document.getElementById('pcCount').textContent=pcs.length;
+}
+
+// ─── Status / Progress ─────────────────────────────────────────────────────────
+function setStatus(msg,state){
+  document.getElementById('statusMsg').textContent=msg;
+  document.getElementById('dot').className='dot'+(state?' '+state:'');
+}
+function addProgress(msg,state){
+  const list=document.getElementById('progressList');
+  list.classList.add('visible');
+  const item=document.createElement('div');
+  item.className='prog-item '+(state||'');
+  item.innerHTML=`<span>${state==='done'?'✓':state==='err'?'!':state==='skip'?'⚡':'›'}</span><span>${msg}</span>`;
+  list.appendChild(item);list.scrollTop=list.scrollHeight;return item;
+}
+function clearProgress(){const l=document.getElementById('progressList');l.innerHTML='';l.classList.remove('visible');}
+
+// ─── Apify runner ─────────────────────────────────────────────────────────────
+async function runApifyActor(apifyKey,actorId,input){
+  const startResp=await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${apifyKey}`,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)
+  });
+  if(!startResp.ok)throw new Error(`Apify start failed: ${startResp.status}`);
+  const startData=await startResp.json();
+  const runId=startData.data?.id;
+  if(!runId)throw new Error('No run ID from Apify');
+  for(let i=0;i<60;i++){
+    await new Promise(r=>setTimeout(r,8000));
+    const sr=await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${apifyKey}`);
+    const sd=await sr.json();
+    const status=sd.data?.status;
+    if(status==='SUCCEEDED')break;
+    if(['FAILED','ABORTED','TIMED-OUT'].includes(status))throw new Error(`Apify run ${status}`);
+  }
+  const dr=await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${apifyKey}&format=json&limit=1000`);
+  if(!dr.ok)throw new Error(`Failed to fetch results: ${dr.status}`);
+  return await dr.json();
+}
+
+// ─── Validate/clean mobile ─────────────────────────────────────────────────────
+function validateMobile(raw){
+  if(!raw)return null;
+  let m=String(raw).replace(/\s|-|\(|\)/g,'').trim();
+  if(m.length===9&&m.startsWith('4'))m='0'+m;
+  if(m.startsWith('+614'))m='0'+m.slice(3);
+  if(m.startsWith('614'))m='0'+m.slice(2);
+  if(!/^04\d{8}$/.test(m))return null;
+  return m;
+}
+
+function cleanName(raw){
+  if(!raw||raw==='—')return null;
+  let name=raw.split(/[&(|+\/]/)[0].trim();
+  name=name.replace(/\b(Founder|Director|Principal|CEO|MD|Owner|Manager|Pty|Ltd)\b.*$/i,'').trim();
+  name=name.replace(/[,\-:]+$/,'').trim();
+  if(!name.includes(' ')||name.length<4||name.length>50)return null;
+  return name;
+}
+
+// ─── Extract state from postcode ───────────────────────────────────────────────
+function stateFromPostcode(pc){
+  const n=parseInt(pc);
+  if(n>=1000&&n<=2999)return'NSW';
+  if(n>=3000&&n<=3999)return'VIC';
+  if(n>=4000&&n<=4999)return'QLD';
+  if(n>=5000&&n<=5999)return'SA';
+  if(n>=6000&&n<=6999)return'WA';
+  if(n>=7000&&n<=7999)return'TAS';
+  if(n>=800&&n<=999)return'NT';
+  if(n>=2600&&n<=2639)return'ACT';
+  return'';
+}
+
+// ─── Main run ─────────────────────────────────────────────────────────────────
+function toggleRun(){
+  if(isRunning){stopRequested=true;document.getElementById('runBtn').textContent='Stopping...';document.getElementById('runBtn').classList.remove('btn-stop');}
+  else runScrape();
+}
+
+async function runScrape(){
+  const apifyKey=localStorage.getItem('tp_apify')||document.getElementById('apifyKey').value.trim()||APIFY_DEFAULT;
+  const category=document.getElementById('category').value;
+  const maxResults=parseInt(document.getElementById('maxResults').value)||100;
+  const postcodes=getPostcodes();
+
+  if(postcodes.length===0){setStatus('Enter a valid postcode or range.','error');return;}
+
+  const btn=document.getElementById('runBtn');
+  btn.textContent='Stop ✕';btn.classList.add('btn-stop');
+  isRunning=true;stopRequested=false;dupeCount=0;
+  leads=[];clearProgress();renderTable();updateStats();
+
+  // Load existing mobiles from Supabase for dedup
+  let existingMobiles=new Set();
+  try{
+    const rows=await sbFetch('leads?mobile=not.is.null&select=mobile&limit=5000');
+    existingMobiles=new Set((rows||[]).map(r=>(r.mobile||'').replace(/\s/g,'')));
+    addProgress(`Loaded ${existingMobiles.size} existing mobiles for dedup`,'done');
+  }catch{}
+
+  setStatus(`Scraping ${category} across ${postcodes.length} postcode(s)...`,'active');
+
+  for(let i=0;i<postcodes.length;i++){
+    if(stopRequested)break;
+    const pc=postcodes[i];
+    const state=stateFromPostcode(pc);
+
+    // Queue bar
+    const qbar=document.getElementById('queueBar');
+    qbar.classList.add('visible');
+    document.getElementById('queueLabel').textContent=`Postcode ${pc} (${i+1}/${postcodes.length})`;
+    document.getElementById('queueCount').textContent=`${i+1} / ${postcodes.length}`;
+    document.getElementById('queueFill').style.width=`${Math.round((i+1)/postcodes.length*100)}%`;
+
+    const prog=addProgress(`Scraping ${category} in ${pc}...`,'active');
+    try{
+      const items=await runApifyActor(apifyKey,ACTOR_ID,{category,postcode:pc});
+      let added=0,dupes=0;
+      for(const item of items){
+        const phone=item.phone||item.phoneNumber||item.contact||'';
+        const mobile=validateMobile(phone);
+        const cleanPhone=phone.replace(/\s/g,'');
+        // Dedup check
+        if(mobile&&existingMobiles.has(mobile)){dupes++;dupeCount++;continue;}
+        if(mobile)existingMobiles.add(mobile);
+        leads.push({
+          id:Date.now()+Math.random(),selected:true,
+          company:item.name||item.businessName||item.title||'',
+          contact:cleanName(item.ownerName||item.contactName||''),
+          phone:mobile||phone||'',
+          isMobile:!!mobile,
+          suburb:item.suburb||item.location||item.city||'',
+          state:item.state||state,
+          postcode:pc,
+          rating:item.rating||item.starRating||null,
+          hires:item.totalHired||item.hireCount||null,
+          category,
+          raw:item
+        });
+        added++;
+      }
+      prog.className='prog-item done';
+      prog.querySelector('span:last-child').textContent=`${pc}: ${added} businesses found${dupes?' ('+dupes+' dupes skipped)':''}`;
+    }catch(e){
+      prog.className='prog-item err';
+      prog.querySelector('span:last-child').textContent=`${pc}: Error — ${e.message.slice(0,60)}`;
+    }
+    renderTable();updateStats();
+    if(i<postcodes.length-1&&!stopRequested)await new Promise(r=>setTimeout(r,2000));
+  }
+
+  document.getElementById('queueBar').classList.remove('visible');
+  isRunning=false;stopRequested=false;
+  btn.textContent='Scrape Hipages ›';btn.classList.remove('btn-stop');
+
+  const withPhone=leads.filter(l=>l.phone).length;
+  setStatus(`Done — ${leads.length} businesses, ${withPhone} with phone. ${dupeCount} dupes skipped.`,'done');
+  document.getElementById('exportBtn').disabled=false;
+  document.getElementById('getNames').disabled=false;
+  updateStats();
+}
+
+// ─── Get owner names via Claude ────────────────────────────────────────────────
+async function getOwnerNames(){
+  const apiKey=localStorage.getItem('tp_ak')||document.getElementById('apiKey').value.trim();
+  if(!apiKey){setStatus('Add Anthropic key in Settings for name lookup.','error');return;}
+
+  const needsName=leads.filter(l=>l.selected&&!l.contact&&l.phone&&l.company);
+  if(needsName.length===0){setStatus('No leads need name lookup.','');return;}
+
+  const btn=document.getElementById('getNames');
+  btn.disabled=true;btn.textContent='Getting names...';
+  setStatus(`Looking up owner names for ${needsName.length} businesses...`,'active');
+
+  for(let i=0;i<needsName.length;i++){
+    if(stopRequested)break;
+    const lead=needsName[i];
+    lead.lookingUp=true;renderTable();
+
+    const prompt=`Find the owner or principal of this Australian trade business.
+
+Business: ${lead.company}
+Category: ${lead.category}
+Location: ${lead.suburb||''} ${lead.state||''}
+Phone: ${lead.phone}
+
+Search their Hipages profile or website. Find the owner's first and last name only.
+
+Rules:
+- Return ONE person — the owner, director, or founder
+- First name + last name only — no titles, no brackets
+- If genuinely not findable, return null
+
+Return ONLY raw JSON: {"contact":"First Last or null"}`;
+
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({
+          model:'claude-haiku-4-5-20251001',max_tokens:100,
+          tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}],
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      const data=await resp.json();
+      let text='';for(const b of data.content){if(b.type==='text')text+=b.text;}
+      const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*?\}/);
+      if(match){
+        const r=JSON.parse(match[0]);
+        const name=cleanName(r.contact||'');
+        if(name)lead.contact=name;
+      }
+    }catch{}
+    lead.lookingUp=false;
+    renderTable();updateStats();
+    if(i<needsName.length-1)await new Promise(r=>setTimeout(r,2500));
+  }
+
+  btn.disabled=false;btn.textContent='Get Owner Names (Claude)';
+  setStatus(`Name lookup complete. ${leads.filter(l=>l.contact).length} names found.`,'done');
+}
+
+// ─── Table render ─────────────────────────────────────────────────────────────
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  if(leads.length===0){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state">Select a category and postcode, then click Scrape Hipages.</div></td></tr>';return;}
+
+  const sf=document.getElementById('stateFilter').value;
+  const visible=sf?leads.filter(l=>l.state===sf):leads;
+
+  tbody.innerHTML=visible.map(l=>{
+    const status=l.lookingUp?'<span style="color:var(--muted);font-size:10px">searching...</span>'
+      :l.contact&&l.phone?`<span class="chip chip-complete">complete</span>`
+      :l.phone&&!l.contact?`<span class="chip chip-no-name">no name</span>`
+      :l.contact&&!l.phone?`<span class="chip chip-no-name">no phone</span>`
+      :'<span style="color:var(--danger);font-size:10px">incomplete</span>';
+    const rating=l.rating?`<span style="color:var(--accent)">★</span> ${parseFloat(l.rating).toFixed(1)}${l.hires?' · '+l.hires+' hires':''}`:
+      l.hires?l.hires+' hires':'—';
+    return`<tr>
+      <td><input type="checkbox" ${l.selected?'checked':''} onchange="toggleSelect('${l.id}',this.checked)"/></td>
+      <td class="cell-primary" title="${l.company}">${l.company}</td>
+      <td class="cell-secondary">${l.contact||'—'}</td>
+      <td><div class="cell-primary">${l.phone||'—'}</div>${l.isMobile?'<div style="margin-top:2px"><span class="chip chip-mobile">mobile</span></div>':''}</td>
+      <td class="cell-secondary">${l.suburb||'—'}</td>
+      <td class="cell-dim">${l.state||'—'}</td>
+      <td class="cell-dim" style="white-space:nowrap">${rating}</td>
+      <td>${status}</td>
+      <td><button class="remove-btn" onclick="removeLead('${l.id}')">×</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('leadCount').textContent=visible.length;
+  document.getElementById('selectedCount').textContent=visible.filter(l=>l.selected).length;
+}
+
+function toggleSelect(id,checked){const l=leads.find(l=>l.id==id);if(l)l.selected=checked;renderTable();}
+function selectAll(){const all=leads.every(l=>l.selected);leads.forEach(l=>l.selected=!all);renderTable();}
+function removeLead(id){leads=leads.filter(l=>l.id!=id);renderTable();updateStats();}
+
+function updateStats(){
+  document.getElementById('statTotal').textContent=leads.length;
+  document.getElementById('statPhone').textContent=leads.filter(l=>l.phone).length;
+  document.getElementById('statNamed').textContent=leads.filter(l=>l.contact).length;
+  document.getElementById('statComplete').textContent=leads.filter(l=>l.contact&&l.phone).length;
+  document.getElementById('statDupe').textContent=dupeCount;
+  const cost=(leads.length*0.002+(leads.filter(l=>l.contact).length*0.013));
+  document.getElementById('statCost').textContent=`$${cost.toFixed(2)}`;
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+function exportCSV(){
+  const sf=document.getElementById('stateFilter').value;
+  let toExport=leads.filter(l=>l.selected&&l.phone&&l.company);
+  if(sf)toExport=toExport.filter(l=>l.state===sf);
+
+  // Dedup by phone
+  const seen=new Set();
+  toExport=toExport.filter(l=>{
+    const p=(l.phone||'').replace(/\s/g,'');
+    if(seen.has(p))return false;
+    seen.add(p);return true;
+  });
+
+  if(toExport.length===0){setStatus('No leads to export — need at least a phone number.','error');return;}
+
+  const headers=['Last Name','First Name','Title','Company','Phone','Mobile','Email','Website','City','Province (State)','Country','Industry','Lead Source','Lead Status','Campaign Name','Service Interest','Estimated Headcount Needed','Description'];
+  const rows=toExport.map(l=>{
+    const parts=l.contact?l.contact.trim().split(/\s+/):[];
+    const firstName=parts.length>1?parts.slice(0,-1).join(' '):(parts[0]||'');
+    const lastName=parts.length>1?parts[parts.length-1]:'';
+    const mobile=l.isMobile?l.phone:'';
+    const phone=l.isMobile?'':l.phone;
+    return[lastName,firstName,'',l.company,phone,mobile,'','',l.suburb,l.state,'Australia',l.category,'Trades Prospector — Offshore 24/7','New','','Offshore Staffing','',`Hipages listing · Category: ${l.category} · Rating: ${l.rating||'N/A'} · Hires: ${l.hires||'N/A'}`];
+  });
+
+  const date=new Date().toISOString().slice(0,10);
+  const cat=document.getElementById('category').value.replace(/\s/g,'_');
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`zoho_trades_${cat}_${date}.csv`;a.click();URL.revokeObjectURL(url);
+  setStatus(`Exported ${toExport.length} leads → Zoho ready.`,'done');
+}
+
+// ─── Supabase ─────────────────────────────────────────────────────────────────
+async function sbFetch(path){
+  const r=await fetch(`${SB_URL}/rest/v1/${path}`,{
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'}
+  });
+  if(!r.ok)throw new Error(await r.text());
+  const text=await r.text();
+  return text?JSON.parse(text):null;
+}
+</script>
+</body>
+</html>
