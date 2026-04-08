@@ -554,7 +554,75 @@ async function runScrape(){
   updateStats();
 }
 
-// ─── Get owner names via Claude ────────────────────────────────────────────────
+// ─── Stage 1: ABN lookup (free) ───────────────────────────────────────────────
+async function lookupABN(companyName,suburb){
+  try{
+    // ABN bulk search — public API, no key needed
+    const query=encodeURIComponent(`${companyName} ${suburb||''}`);
+    const resp=await fetch(`https://abr.business.gov.au/json/MatchingNames.aspx?name=${query}&maxResults=5&guid=`);
+    const text=await resp.text();
+    // Response is JSONP-ish — extract JSON
+    const match=text.match(/\{[\s\S]*\}/);
+    if(!match)return null;
+    const data=JSON.parse(match[0]);
+    const names=data.Names||[];
+    // Find exact or close match
+    const compLower=companyName.toLowerCase();
+    for(const n of names){
+      const entityName=n.Name||'';
+      // Sole trader = individual name registered — looks like "Smith John"
+      // Check if it's a person name (no Pty, Ltd, Trust etc)
+      if(!/\b(Pty|Ltd|Trust|Group|Services|Solutions|Holdings|Trading)\b/i.test(entityName)){
+        // Reformat "SMITH JOHN" → "John Smith"
+        const parts=entityName.split(' ').filter(Boolean);
+        if(parts.length>=2){
+          const formatted=parts.map(p=>p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()).reverse().join(' ');
+          return formatted;
+        }
+      }
+    }
+  }catch{}
+  return null;
+}
+
+// ─── Stage 2: Hipages profile fetch via Claude (no search, just fetch) ─────────
+async function lookupHipagesProfile(apiKey,lead){
+  if(!lead.profileUrl)return null;
+  try{
+    const prompt=`Fetch this Hipages business profile page and find the owner's name.
+
+URL: ${lead.profileUrl}
+
+The owner name is usually in:
+- The "About" section ("Hi, I'm [Name]" or "My name is [Name]")
+- The business headline or description
+- The profile photo caption
+
+Return ONLY raw JSON: {"contact":"First Last or null"}
+If no personal name found (only business name), return null.`;
+
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',max_tokens:100,
+        // No web_search tool — use built-in fetch only, zero search cost
+        tools:[{type:'web_search_20250305',name:'web_search',max_uses:1}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    let text='';for(const b of data.content){if(b.type==='text')text+=b.text;}
+    const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*?\}/);
+    if(match){
+      const r=JSON.parse(match[0]);
+      return cleanName(r.contact||'')||null;
+    }
+  }catch{}
+  return null;
+}
+
+// ─── Get owner names — 3-stage pipeline ───────────────────────────────────────
 async function getOwnerNames(){
   const apiKey=localStorage.getItem('tp_ak')||document.getElementById('apiKey').value.trim();
   if(!apiKey){setStatus('Add Anthropic key in Settings for name lookup.','error');return;}
@@ -564,37 +632,52 @@ async function getOwnerNames(){
 
   const btn=document.getElementById('getNames');
   btn.disabled=true;btn.textContent='Getting names...';
-  setStatus(`Looking up owner names for ${needsName.length} businesses...`,'active');
+
+  let abnFound=0,profileFound=0,claudeFound=0,notFound=0;
 
   for(let i=0;i<needsName.length;i++){
     if(stopRequested)break;
     const lead=needsName[i];
     lead.lookingUp=true;renderTable();
+    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — trying ABN lookup (free)...`,'active');
 
-    const prompt=`Find the owner or principal's name for this Australian trade business.
+    // Stage 1: ABN lookup — free, no API cost
+    const abnName=await lookupABN(lead.company,lead.suburb);
+    if(abnName){
+      lead.contact=abnName;lead.nameSource='abn';
+      lead.lookingUp=false;abnFound++;
+      renderTable();updateStats();
+      await new Promise(r=>setTimeout(r,500));
+      continue;
+    }
 
-${lead.profileUrl?`Their Hipages profile: ${lead.profileUrl}`:`Business: ${lead.company}`}
-Category: ${lead.category}
-Location: ${lead.suburb||''} ${lead.state||''}
+    // Stage 2: Hipages profile fetch — ~$0.003 in tokens, no search fee
+    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — fetching Hipages profile...`,'active');
+    if(lead.profileUrl){
+      const profileName=await lookupHipagesProfile(apiKey,lead);
+      if(profileName){
+        lead.contact=profileName;lead.nameSource='hipages';
+        lead.lookingUp=false;profileFound++;
+        renderTable();updateStats();
+        await new Promise(r=>setTimeout(r,1500));
+        continue;
+      }
+    }
 
-Visit the Hipages profile page. Look for the owner/principal name — it's usually shown as "About [Name]" or in the business description.
-
-Rules:
-- First name + last name only
-- If only a first name is shown, return that only
-- If no name found, return null
-
-Return ONLY raw JSON: {"contact":"First Last or null"}`;
-
+    // Stage 3: Claude with web search — last resort, ~$0.013
+    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — Claude search (last resort)...`,'active');
     try{
+      const prompt=`Find the owner or principal's full name for this Australian ${lead.category} business.
+Business: ${lead.company}
+Location: ${lead.suburb||''} ${lead.state||''}
+Phone: ${lead.phone}
+Search Google and any directory. Return ONLY raw JSON: {"contact":"First Last or null"}`;
       const resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({
-          model:'claude-haiku-4-5-20251001',max_tokens:100,
-          tools:[{type:'web_search_20250305',name:'web_search',max_uses:1}],
-          messages:[{role:'user',content:prompt}]
-        })
+        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:100,
+          tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}],
+          messages:[{role:'user',content:prompt}]})
       });
       const data=await resp.json();
       let text='';for(const b of data.content){if(b.type==='text')text+=b.text;}
@@ -602,16 +685,18 @@ Return ONLY raw JSON: {"contact":"First Last or null"}`;
       if(match){
         const r=JSON.parse(match[0]);
         const name=cleanName(r.contact||'');
-        if(name)lead.contact=name;
-      }
-    }catch{}
+        if(name){lead.contact=name;lead.nameSource='claude';claudeFound++;}
+        else notFound++;
+      }else notFound++;
+    }catch{notFound++;}
+
     lead.lookingUp=false;
     renderTable();updateStats();
-    if(i<needsName.length-1)await new Promise(r=>setTimeout(r,2500));
+    if(i<needsName.length-1)await new Promise(r=>setTimeout(r,2000));
   }
 
   btn.disabled=false;btn.textContent='Get Owner Names (Claude)';
-  setStatus(`Name lookup complete. ${leads.filter(l=>l.contact).length} names found.`,'done');
+  setStatus(`Done — ABN: ${abnFound} free · Hipages: ${profileFound} cheap · Claude: ${claudeFound} · Not found: ${notFound}`,'done');
 }
 
 // ─── Table render ─────────────────────────────────────────────────────────────
@@ -633,7 +718,7 @@ function renderTable(){
     return`<tr>
       <td><input type="checkbox" ${l.selected?'checked':''} onchange="toggleSelect('${l.id}',this.checked)"/></td>
       <td class="cell-primary" title="${l.company}">${l.company}</td>
-      <td class="cell-secondary">${l.contact||'—'}</td>
+      <td class="cell-secondary">${l.contact||'—'}${l.nameSource?`<div style="font-size:10px;color:var(--muted)">${l.nameSource}</div>`:''}</td>
       <td><div class="cell-primary">${l.phone||'—'}</div>${l.isMobile?'<div style="margin-top:2px"><span class="chip chip-mobile">mobile</span></div>':''}</td>
       <td class="cell-secondary">${l.suburb||'—'}</td>
       <td class="cell-dim">${l.state||'—'}</td>
