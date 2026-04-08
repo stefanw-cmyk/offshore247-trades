@@ -83,7 +83,9 @@ tbody td{padding:9px 12px;vertical-align:top;overflow:hidden;text-overflow:ellip
 .rating-bar{display:flex;gap:2px;align-items:center;font-size:11px;color:var(--muted)}
 .remove-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:0 3px}.remove-btn:hover{color:var(--danger)}
 input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
-.empty-state{padding:40px 24px;text-align:center;color:var(--muted);font-size:12px}
+.region-chip{padding:6px 12px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s;user-select:none}
+.region-chip:hover{border-color:var(--accent);color:var(--text)}
+.region-chip.active{border-color:var(--accent);background:rgba(181,240,160,.1);color:var(--accent)}
 
 /* Queue bar */
 .queue-bar{display:none;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:10px}
@@ -199,44 +201,35 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
     </div>
   </div>
 
-  <!-- Postcode mode -->
-  <div style="margin-bottom:12px">
-    <div class="pc-tabs">
-      <button class="pc-tab active" onclick="setPcMode('single',this)">Single Postcode</button>
-      <button class="pc-tab" onclick="setPcMode('range',this)">Postcode Range</button>
-      <button class="pc-tab" onclick="setPcMode('city',this)">City / Region</button>
-    </div>
-    <div id="pcSingleWrap" style="display:flex;gap:10px;align-items:flex-end">
-      <div class="field-wrap" style="width:160px"><label>Postcode</label><input type="number" id="pcSingle" placeholder="4000" min="1000" max="9999"/></div>
-    </div>
-    <div id="pcRangeWrap" style="display:none;flex-direction:column;gap:6px">
-      <div class="field-wrap" style="width:240px"><label>Postcode Range (e.g. 4000-4100)</label><input type="text" id="pcRange" placeholder="4000-4100"/></div>
-      <div style="font-size:11px;color:var(--muted)" id="rangeHint2"></div>
-    </div>
-    <div id="pcCityWrap" style="display:none">
-      <div class="field-wrap" style="width:280px">
-        <label>City / Region</label>
-        <select id="cityPreset2">
-          <option value="">Select...</option>
-          <option value="4000-4299">Brisbane Metro (4000–4299)</option>
-          <option value="4200-4299">Gold Coast (4200–4299)</option>
-          <option value="4550-4575">Sunshine Coast (4550–4575)</option>
-          <option value="6000-6199">Perth Metro (6000–6199)</option>
-          <option value="2000-2199">Sydney Metro (2000–2199)</option>
-          <option value="3000-3199">Melbourne Metro (3000–3199)</option>
-          <option value="5000-5099">Adelaide (5000–5099)</option>
-          <option value="4810-4825">Townsville (4810–4825)</option>
-          <option value="4868-4878">Cairns (4868–4878)</option>
-          <option value="4350-4355">Toowoomba (4350–4355)</option>
-        </select>
-      </div>
+  <!-- Region selector — Hipages returns regional results, not per-postcode -->
+  <div style="margin-bottom:8px">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">Select Regions to Scrape <span style="color:var(--accent);font-size:10px;text-transform:none;letter-spacing:0">(one Hipages search per region — same businesses service entire metro area)</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px" id="regionChips">
+      <div class="region-chip" data-pc="4000" onclick="toggleRegion(this)">Brisbane Metro</div>
+      <div class="region-chip" data-pc="4215" onclick="toggleRegion(this)">Gold Coast</div>
+      <div class="region-chip" data-pc="4558" onclick="toggleRegion(this)">Sunshine Coast</div>
+      <div class="region-chip" data-pc="4500" onclick="toggleRegion(this)">Caboolture / North Lakes</div>
+      <div class="region-chip" data-pc="4300" onclick="toggleRegion(this)">Ipswich</div>
+      <div class="region-chip" data-pc="4810" onclick="toggleRegion(this)">Townsville</div>
+      <div class="region-chip" data-pc="4868" onclick="toggleRegion(this)">Cairns</div>
+      <div class="region-chip" data-pc="4350" onclick="toggleRegion(this)">Toowoomba</div>
+      <div class="region-chip" data-pc="6000" onclick="toggleRegion(this)">Perth Metro</div>
+      <div class="region-chip" data-pc="6065" onclick="toggleRegion(this)">Perth North (Wanneroo)</div>
+      <div class="region-chip" data-pc="6155" onclick="toggleRegion(this)">Perth South</div>
+      <div class="region-chip" data-pc="2000" onclick="toggleRegion(this)">Sydney Metro</div>
+      <div class="region-chip" data-pc="2150" onclick="toggleRegion(this)">Sydney West</div>
+      <div class="region-chip" data-pc="3000" onclick="toggleRegion(this)">Melbourne Metro</div>
+      <div class="region-chip" data-pc="5000" onclick="toggleRegion(this)">Adelaide</div>
+      <div class="region-chip" data-pc="2300" onclick="toggleRegion(this)">Newcastle</div>
+      <div class="region-chip" data-pc="2500" onclick="toggleRegion(this)">Wollongong</div>
     </div>
   </div>
 
   <div class="cost-bar" id="costBar">
-    Estimated cost: <span id="costEst">~$0.20</span> (Apify scrape only, no Claude)
-    &nbsp;·&nbsp; With name lookup: <span id="costEstNames">~$1.50</span>
-    &nbsp;·&nbsp; Postcodes to run: <span id="pcCount">1</span>
+    Regions selected: <span id="pcCount">0</span>
+    &nbsp;·&nbsp; Est. Apify cost: <span id="costEst">$0.00</span>
+    &nbsp;·&nbsp; With name lookup: <span id="costEstNames">$0.00</span>
+    &nbsp;·&nbsp; Max 110 businesses per region
   </div>
 
   <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
@@ -342,13 +335,12 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
 </div><!-- /shell -->
 
 <script>
-const APIFY_DEFAULT='apify_api_HQFFFPdRkofUFBEHnFfybdaBvye7YT1LhCbo';
+const APIFY_DEFAULT='';
 const ACTOR_ID='websift~hipages-lead-extractor';
 const SB_URL='https://ojifhwprkapdqsfsufrl.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qaWZod3Bya2FwZHFzZnN1ZnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI0MjcsImV4cCI6MjA4OTI2ODQyN30.f8UZw7qCoOFG6MosRU3FCCyihphFfGh_-HzF7B5l_T4';
 
 let leads=[],isRunning=false,stopRequested=false,dupeCount=0;
-let pcMode='single';
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load',()=>{
@@ -358,15 +350,6 @@ window.addEventListener('load',()=>{
   if(apk||APIFY_DEFAULT){document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
   if(rb)document.getElementById('runBy').value=rb;
   updateCostEst();
-  document.getElementById('pcRange').addEventListener('input',()=>{
-    const v=document.getElementById('pcRange').value.trim();
-    const m=v.match(/^(\d{4})[-–](\d{4})$/);
-    if(m){
-      const count=parseInt(m[2])-parseInt(m[1])+1;
-      document.getElementById('rangeHint2').textContent=count>0&&count<=500?`${count} postcodes`:'';
-    }
-    updateCostEst();
-  });
 });
 
 function saveKeys(){
@@ -386,44 +369,21 @@ function switchTab(name){
   document.querySelectorAll(`.tab[onclick="switchTab('${name}')"]`).forEach(t=>t.classList.add('active'));
 }
 
-function setPcMode(mode,el){
-  pcMode=mode;
-  document.querySelectorAll('.pc-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('pcSingleWrap').style.display=mode==='single'?'flex':'none';
-  document.getElementById('pcRangeWrap').style.display=mode==='range'?'flex':'none';
-  document.getElementById('pcCityWrap').style.display=mode==='city'?'block':'none';
+function toggleRegion(el){
+  el.classList.toggle('active');
   updateCostEst();
 }
 
 function getPostcodes(){
-  if(pcMode==='single'){
-    const pc=document.getElementById('pcSingle').value.trim();
-    return pc.length===4?[parseInt(pc)]:[];
-  }
-  if(pcMode==='range'){
-    const v=document.getElementById('pcRange').value.trim();
-    const m=v.match(/^(\d{4})[-–](\d{4})$/);
-    if(!m)return[];
-    const start=parseInt(m[1]),end=parseInt(m[2]);
-    const pcs=[];for(let i=start;i<=Math.min(end,start+499);i++)pcs.push(i);
-    return pcs;
-  }
-  if(pcMode==='city'){
-    const v=document.getElementById('cityPreset2').value;
-    if(!v)return[];
-    const[s,e]=v.split('-').map(Number);
-    const pcs=[];for(let i=s;i<=e;i++)pcs.push(i);
-    return pcs;
-  }
-  return[];
+  return [...document.querySelectorAll('.region-chip.active')].map(el=>parseInt(el.dataset.pc));
 }
 
 function updateCostEst(){
   const pcs=getPostcodes();
-  const max=parseInt(document.getElementById('maxResults').value)||100;
-  const est=pcs.length*max*0.002;
-  const estNames=pcs.length*max*0.015;
+  const maxPerRegion=110;
+  const totalEst=pcs.length*maxPerRegion;
+  const est=(totalEst*2/1000);
+  const estNames=est+(totalEst*0.013);
   document.getElementById('costEst').textContent=`~$${est.toFixed(2)}`;
   document.getElementById('costEstNames').textContent=`~$${estNames.toFixed(2)}`;
   document.getElementById('pcCount').textContent=pcs.length;
@@ -543,26 +503,31 @@ async function runScrape(){
 
     const prog=addProgress(`Scraping ${category} in ${pc}...`,'active');
     try{
-      const items=await runApifyActor(apifyKey,ACTOR_ID,{category,postcode:pc});
+      const items=await runApifyActor(apifyKey,ACTOR_ID,{category,postcode:pc,sortBy:'Total Hired'});
       let added=0,dupes=0;
       for(const item of items){
-        const phone=item.phone||item.phoneNumber||item.contact||'';
-        const mobile=validateMobile(phone);
-        const cleanPhone=phone.replace(/\s/g,'');
+        // Actual field names from websift~hipages-lead-extractor output
+        const mobile=validateMobile(item.mobile||item.phone||'');
+        const phone=item.phone||item.mobile||'';
+        const cleanPhone=mobile||phone;
         // Dedup check
-        if(mobile&&existingMobiles.has(mobile)){dupes++;dupeCount++;continue;}
-        if(mobile)existingMobiles.add(mobile);
+        if(mobile&&existingMobiles.has(mobile.replace(/\s/g,''))){dupes++;dupeCount++;continue;}
+        if(mobile)existingMobiles.add(mobile.replace(/\s/g,''));
+        const rating=item.starRating?.rating||null;
+        const totalHired=item.starRating?.totalHired||null;
         leads.push({
           id:Date.now()+Math.random(),selected:true,
-          company:item.name||item.businessName||item.title||'',
+          company:item.name||'',
           contact:cleanName(item.ownerName||item.contactName||''),
-          phone:mobile||phone||'',
+          phone:cleanPhone,
           isMobile:!!mobile,
-          suburb:item.suburb||item.location||item.city||'',
+          suburb:item.serviceArea||item.suburb||item.location||'',
           state:item.state||state,
           postcode:pc,
-          rating:item.rating||item.starRating||null,
-          hires:item.totalHired||item.hireCount||null,
+          rating,
+          hires:totalHired,
+          profileUrl:item.profilePageFullUrl||null,
+          hasAbn:item.hasValidAbn||false,
           category,
           raw:item
         });
@@ -606,19 +571,18 @@ async function getOwnerNames(){
     const lead=needsName[i];
     lead.lookingUp=true;renderTable();
 
-    const prompt=`Find the owner or principal of this Australian trade business.
+    const prompt=`Find the owner or principal's name for this Australian trade business.
 
-Business: ${lead.company}
+${lead.profileUrl?`Their Hipages profile: ${lead.profileUrl}`:`Business: ${lead.company}`}
 Category: ${lead.category}
 Location: ${lead.suburb||''} ${lead.state||''}
-Phone: ${lead.phone}
 
-Search their Hipages profile or website. Find the owner's first and last name only.
+Visit the Hipages profile page. Look for the owner/principal name — it's usually shown as "About [Name]" or in the business description.
 
 Rules:
-- Return ONE person — the owner, director, or founder
-- First name + last name only — no titles, no brackets
-- If genuinely not findable, return null
+- First name + last name only
+- If only a first name is shown, return that only
+- If no name found, return null
 
 Return ONLY raw JSON: {"contact":"First Last or null"}`;
 
@@ -628,7 +592,7 @@ Return ONLY raw JSON: {"contact":"First Last or null"}`;
         headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
         body:JSON.stringify({
           model:'claude-haiku-4-5-20251001',max_tokens:100,
-          tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}],
+          tools:[{type:'web_search_20250305',name:'web_search',max_uses:1}],
           messages:[{role:'user',content:prompt}]
         })
       });
@@ -692,8 +656,7 @@ function updateStats(){
   document.getElementById('statNamed').textContent=leads.filter(l=>l.contact).length;
   document.getElementById('statComplete').textContent=leads.filter(l=>l.contact&&l.phone).length;
   document.getElementById('statDupe').textContent=dupeCount;
-  const cost=(leads.length*0.002+(leads.filter(l=>l.contact).length*0.013));
-  document.getElementById('statCost').textContent=`$${cost.toFixed(2)}`;
+  const cost=(leads.length*0.002+(leads.filter(l=>l.contact).length*0.013));  document.getElementById('statCost').textContent=`$${cost.toFixed(2)}`;
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
