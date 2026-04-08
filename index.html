@@ -22,34 +22,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 .tab.active{background:var(--accent);color:#0d0f0e;border-color:var(--accent);font-weight:500}
 .tab:hover:not(.active){border-color:var(--accent);color:var(--text)}
 .pane{display:none}.pane.active{display:block}
-
-/* Source intel banner */
 .intel-banner{padding:12px 16px;background:rgba(112,192,240,.06);border:1px solid rgba(112,192,240,.2);border-radius:6px;margin-bottom:16px;font-size:12px;color:var(--info);line-height:1.6}
 .intel-banner strong{color:var(--text)}
-
-/* Config */
-.config-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-.config-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 .field-wrap{display:flex;flex-direction:column;gap:5px}
 .field-wrap label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 input[type=text],input[type=password],input[type=number],select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:4px;outline:none;width:100%;transition:border-color .15s}
 input:focus,select:focus{border-color:var(--accent)}
 select option{background:var(--surface2)}
-
-/* Postcode mode */
-.pc-tabs{display:flex;gap:6px;margin-bottom:10px}
-.pc-tab{font-size:11px;padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--mono)}
-.pc-tab.active{background:var(--accent);color:#0d0f0e;border-color:var(--accent)}
-
-/* Buttons */
 .btn{background:var(--accent);color:#0d0f0e;border:none;font-family:var(--display);font-size:13px;font-weight:700;padding:9px 20px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:background .15s}
 .btn:hover{background:var(--accent2)}.btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
 .btn-stop{background:var(--danger)!important;color:#fff!important}
 .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--border);font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:4px;cursor:pointer;transition:all .15s}
 .btn-ghost:hover{border-color:var(--accent);background:rgba(181,240,160,.06)}.btn-ghost:disabled{opacity:.35;cursor:not-allowed}
-.btn-warning{background:rgba(240,192,112,.1);color:var(--warning);border:1px solid rgba(240,192,112,.3);font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:4px;cursor:pointer}
-
-/* Status */
+.region-chip{padding:6px 12px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s;user-select:none;position:relative}
+.region-chip:hover{border-color:var(--accent);color:var(--text)}
+.region-chip.active{border-color:var(--accent);background:rgba(181,240,160,.1);color:var(--accent)}
+.region-chip.done{border-color:var(--accent2);background:rgba(125,216,106,.08);color:var(--accent2)}
+.region-chip.done::after{content:'✓';margin-left:5px;font-size:10px}
 .status-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;font-size:12px;color:var(--muted)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .dot.active{background:var(--accent);animation:pulse 1.2s infinite}.dot.done{background:var(--accent)}.dot.error{background:var(--danger)}
@@ -58,50 +47,41 @@ select option{background:var(--surface2)}
 .progress-list.visible{display:block}
 .prog-item{font-size:11px;color:var(--muted);padding:2px 0;display:flex;gap:8px}
 .prog-item.done{color:var(--accent)}.prog-item.err{color:var(--danger)}.prog-item.skip{color:var(--accent2)}
-
-/* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:9px 14px}
 .stat-card .val{font-family:var(--display);font-size:20px;font-weight:700;color:var(--accent)}
 .stat-card .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
-
-/* Table */
 .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.count-badge{font-size:11px;color:var(--muted)}.count-badge strong{color:var(--accent)}
 .table-wrap{border:1px solid var(--border);border-radius:4px;overflow:hidden;overflow-x:auto}
 table{width:100%;border-collapse:collapse;min-width:900px}
 thead th{background:var(--surface);text-align:left;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border)}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
-tbody td{padding:9px 12px;vertical-align:top;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+tbody td{padding:9px 12px;vertical-align:top;font-size:13px}
 .cell-primary{color:var(--text)}.cell-secondary{color:var(--muted);font-size:12px}.cell-dim{color:var(--muted);font-size:11px}
 .chip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px}
 .chip-mobile{background:rgba(181,240,160,.12);color:var(--accent);border:1px solid rgba(181,240,160,.2)}
-.chip-no-name{background:rgba(240,192,112,.1);color:var(--warning);border:1px solid rgba(240,192,112,.2)}
-.chip-complete{background:rgba(181,240,160,.2);color:var(--accent2);border:1px solid rgba(181,240,160,.3)}
-.rating-bar{display:flex;gap:2px;align-items:center;font-size:11px;color:var(--muted)}
+.chip-done{background:rgba(181,240,160,.2);color:var(--accent2);border:1px solid rgba(181,240,160,.3)}
+.chip-noname{background:rgba(240,192,112,.1);color:var(--warning);border:1px solid rgba(240,192,112,.2)}
 .remove-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:0 3px}.remove-btn:hover{color:var(--danger)}
 input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
-.region-chip{padding:6px 12px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s;user-select:none}
-.region-chip:hover{border-color:var(--accent);color:var(--text)}
-.region-chip.active{border-color:var(--accent);background:rgba(181,240,160,.1);color:var(--accent)}
-
-/* Queue bar */
+.empty-state{padding:40px 24px;text-align:center;color:var(--muted);font-size:12px}
 .queue-bar{display:none;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:10px}
 .queue-bar.visible{display:block}
-
-/* Cost estimate */
-.cost-bar{padding:8px 14px;background:rgba(181,240,160,.04);border:1px solid rgba(181,240,160,.15);border-radius:4px;margin-bottom:10px;font-size:11px;color:var(--muted);display:flex;gap:20px}
+.cost-bar{padding:8px 14px;background:rgba(181,240,160,.04);border:1px solid rgba(181,240,160,.15);border-radius:4px;margin-bottom:10px;font-size:11px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap}
 .cost-bar span{color:var(--accent)}
-
-/* Info/Settings panes */
 .info-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 20px;margin-bottom:14px}
 .info-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px}
 .info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
 .info-row:last-child{border-bottom:none}
 .info-row .label{color:var(--muted)}.info-row .value{color:var(--text);font-weight:500}
 .info-row .value.green{color:var(--accent)}.info-row .value.orange{color:var(--warning)}.info-row .value.red{color:var(--danger)}
+.cov-table{width:100%;border-collapse:collapse}
+.cov-table th{background:var(--surface);text-align:left;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border)}
+.cov-table td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.cov-table tr:last-child td{border-bottom:none}
+.cov-table tr:hover td{background:var(--surface2)}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -111,26 +91,26 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
 <div class="header">
   <div>
     <h1>Trades Prospector</h1>
-    <div class="sub">Offshore 24/7 — Hipages-powered · No Claude enrichment needed · ~$0.015/lead</div>
+    <div class="sub">Offshore 24/7 — Hipages-powered · ~$0.20 per 100 leads · No Claude enrichment needed</div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="switchTab('prospect')">Prospect</button>
-    <button class="tab" onclick="switchTab('info')">Source Intel</button>
+    <button class="tab" onclick="switchTab('coverage')">Coverage</button>
+    <button class="tab" onclick="switchTab('intel')">Source Intel</button>
     <button class="tab" onclick="switchTab('settings')">Settings</button>
   </div>
 </div>
 
 <!-- ═══ PROSPECT ═══ -->
 <div class="pane active" id="pane-prospect">
-
   <div class="intel-banner">
-    <strong>Why Hipages?</strong> Tradies don't publish their mobile on Google Maps or their website — they publish it on Hipages where customers contact them directly. This tool scrapes Hipages by category and postcode, returning business name + phone number instantly with no Claude enrichment needed. Cost: ~$0.002/lead via Apify. Optional name lookup adds ~$0.013/lead. Total: <strong>~$0.015/lead vs $0.40/lead</strong> via Google Maps enrichment.
+    <strong>Why Hipages?</strong> Tradies publish their mobile directly on Hipages — that's how customers contact them. Each region returns up to 110 unique businesses. Different regions = different businesses (tested: Brisbane vs Gold Coast had near-zero overlap). Cost: <strong>~$0.002/lead</strong> Apify scrape only. No Claude enrichment needed for phone numbers.
   </div>
 
-  <div class="config-row">
-    <div class="field-wrap" style="grid-column:span 2">
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="field-wrap">
       <label>Trade Category</label>
-      <select id="category">
+      <select id="category" onchange="updateRegionStatus()">
         <optgroup label="HVAC & Climate">
           <option value="Air Conditioning">Air Conditioning</option>
           <option value="Heating Systems">Heating Systems</option>
@@ -147,16 +127,15 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
           <option value="Gas Fitters">Gas Fitters</option>
           <option value="Hot Water Systems">Hot Water Systems</option>
         </optgroup>
-        <optgroup label="Building & Construction">
+        <optgroup label="Building">
           <option value="Builders">Builders</option>
           <option value="Home Renovations">Home Renovations</option>
+          <option value="Painters">Painters</option>
+          <option value="Roof Repairs">Roof Repairs</option>
+          <option value="Tilers">Tilers</option>
           <option value="Carpenters">Carpenters</option>
           <option value="Concreters">Concreters</option>
-          <option value="Roof Repairs">Roof Repairs</option>
-          <option value="Roofing">Roofing</option>
-          <option value="Painters">Painters</option>
           <option value="Plastering">Plastering</option>
-          <option value="Tilers">Tilers</option>
         </optgroup>
         <optgroup label="Property Services">
           <option value="Handyman">Handyman</option>
@@ -165,22 +144,20 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
           <option value="Pool Maintenance">Pool Maintenance</option>
           <option value="Cleaning Services">Cleaning Services</option>
           <option value="Rubbish Removal">Rubbish Removal</option>
-          <option value="Security Screens Doors">Security Screens Doors</option>
           <option value="Solar Panel Cleaners">Solar Panel Cleaners</option>
+          <option value="Security Screens Doors">Security Screens Doors</option>
         </optgroup>
-        <optgroup label="Other Trades">
+        <optgroup label="Other">
           <option value="Locksmiths">Locksmiths</option>
-          <option value="Glazier">Glazier</option>
           <option value="Fences">Fences</option>
-          <option value="Decking">Decking</option>
           <option value="Insulation">Insulation</option>
           <option value="Waterproofing">Waterproofing</option>
-          <option value="Scaffolding">Scaffolding</option>
+          <option value="Decking">Decking</option>
         </optgroup>
       </select>
     </div>
     <div class="field-wrap">
-      <label>State Filter (for export)</label>
+      <label>State Filter (export only)</label>
       <select id="stateFilter">
         <option value="">All states</option>
         <option value="QLD">QLD</option>
@@ -188,127 +165,149 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
         <option value="VIC">VIC</option>
         <option value="WA">WA</option>
         <option value="SA">SA</option>
-      </select>
-    </div>
-    <div class="field-wrap">
-      <label>Max Results</label>
-      <select id="maxResults">
-        <option value="50">50</option>
-        <option value="100" selected>100</option>
-        <option value="200">200</option>
-        <option value="500">500</option>
+        <option value="TAS">TAS</option>
+        <option value="NT">NT</option>
       </select>
     </div>
   </div>
 
-  <!-- Region selector — Hipages returns regional results, not per-postcode -->
-  <div style="margin-bottom:8px">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">Select Regions to Scrape <span style="color:var(--accent);font-size:10px;text-transform:none;letter-spacing:0">(one Hipages search per region — same businesses service entire metro area)</span></div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px" id="regionChips">
-      <div class="region-chip" data-pc="4000" onclick="toggleRegion(this)">Brisbane Metro</div>
-      <div class="region-chip" data-pc="4215" onclick="toggleRegion(this)">Gold Coast</div>
-      <div class="region-chip" data-pc="4558" onclick="toggleRegion(this)">Sunshine Coast</div>
-      <div class="region-chip" data-pc="4500" onclick="toggleRegion(this)">Caboolture / North Lakes</div>
-      <div class="region-chip" data-pc="4300" onclick="toggleRegion(this)">Ipswich</div>
-      <div class="region-chip" data-pc="4810" onclick="toggleRegion(this)">Townsville</div>
-      <div class="region-chip" data-pc="4868" onclick="toggleRegion(this)">Cairns</div>
-      <div class="region-chip" data-pc="4350" onclick="toggleRegion(this)">Toowoomba</div>
-      <div class="region-chip" data-pc="6000" onclick="toggleRegion(this)">Perth Metro</div>
-      <div class="region-chip" data-pc="6065" onclick="toggleRegion(this)">Perth North (Wanneroo)</div>
-      <div class="region-chip" data-pc="6155" onclick="toggleRegion(this)">Perth South</div>
-      <div class="region-chip" data-pc="2000" onclick="toggleRegion(this)">Sydney Metro</div>
-      <div class="region-chip" data-pc="2150" onclick="toggleRegion(this)">Sydney West</div>
-      <div class="region-chip" data-pc="3000" onclick="toggleRegion(this)">Melbourne Metro</div>
-      <div class="region-chip" data-pc="5000" onclick="toggleRegion(this)">Adelaide</div>
-      <div class="region-chip" data-pc="2300" onclick="toggleRegion(this)">Newcastle</div>
-      <div class="region-chip" data-pc="2500" onclick="toggleRegion(this)">Wollongong</div>
+  <!-- Region chips -->
+  <div style="margin-bottom:10px">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">
+      Select Regions &nbsp;<span style="text-transform:none;letter-spacing:0;color:var(--muted);font-size:10px">· Each region = one Hipages search · up to 110 unique businesses · ✓ = already scraped for this category</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">QLD</div>
+      <div class="region-chip" data-pc="4000" data-region="Brisbane Metro" data-state="QLD" onclick="toggleRegion(this)">Brisbane Metro</div>
+      <div class="region-chip" data-pc="4215" data-region="Gold Coast" data-state="QLD" onclick="toggleRegion(this)">Gold Coast</div>
+      <div class="region-chip" data-pc="4558" data-region="Sunshine Coast" data-state="QLD" onclick="toggleRegion(this)">Sunshine Coast</div>
+      <div class="region-chip" data-pc="4500" data-region="Caboolture / North Lakes" data-state="QLD" onclick="toggleRegion(this)">Caboolture / North Lakes</div>
+      <div class="region-chip" data-pc="4300" data-region="Ipswich" data-state="QLD" onclick="toggleRegion(this)">Ipswich</div>
+      <div class="region-chip" data-pc="4350" data-region="Toowoomba" data-state="QLD" onclick="toggleRegion(this)">Toowoomba</div>
+      <div class="region-chip" data-pc="4810" data-region="Townsville" data-state="QLD" onclick="toggleRegion(this)">Townsville</div>
+      <div class="region-chip" data-pc="4868" data-region="Cairns" data-state="QLD" onclick="toggleRegion(this)">Cairns</div>
+      <div class="region-chip" data-pc="4740" data-region="Mackay" data-state="QLD" onclick="toggleRegion(this)">Mackay</div>
+      <div class="region-chip" data-pc="4670" data-region="Bundaberg" data-state="QLD" onclick="toggleRegion(this)">Bundaberg</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">WA</div>
+      <div class="region-chip" data-pc="6000" data-region="Perth Metro" data-state="WA" onclick="toggleRegion(this)">Perth Metro</div>
+      <div class="region-chip" data-pc="6065" data-region="Perth North" data-state="WA" onclick="toggleRegion(this)">Perth North (Wanneroo)</div>
+      <div class="region-chip" data-pc="6155" data-region="Perth South" data-state="WA" onclick="toggleRegion(this)">Perth South</div>
+      <div class="region-chip" data-pc="6230" data-region="Bunbury" data-state="WA" onclick="toggleRegion(this)">Bunbury</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">NSW</div>
+      <div class="region-chip" data-pc="2000" data-region="Sydney Metro" data-state="NSW" onclick="toggleRegion(this)">Sydney Metro</div>
+      <div class="region-chip" data-pc="2150" data-region="Sydney West" data-state="NSW" onclick="toggleRegion(this)">Sydney West</div>
+      <div class="region-chip" data-pc="2300" data-region="Newcastle" data-state="NSW" onclick="toggleRegion(this)">Newcastle</div>
+      <div class="region-chip" data-pc="2500" data-region="Wollongong" data-state="NSW" onclick="toggleRegion(this)">Wollongong</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">VIC / SA / Other</div>
+      <div class="region-chip" data-pc="3000" data-region="Melbourne Metro" data-state="VIC" onclick="toggleRegion(this)">Melbourne Metro</div>
+      <div class="region-chip" data-pc="3220" data-region="Geelong" data-state="VIC" onclick="toggleRegion(this)">Geelong</div>
+      <div class="region-chip" data-pc="5000" data-region="Adelaide" data-state="SA" onclick="toggleRegion(this)">Adelaide</div>
+      <div class="region-chip" data-pc="7000" data-region="Hobart" data-state="TAS" onclick="toggleRegion(this)">Hobart</div>
     </div>
   </div>
 
-  <div class="cost-bar" id="costBar">
+  <div class="cost-bar">
     Regions selected: <span id="pcCount">0</span>
     &nbsp;·&nbsp; Est. Apify cost: <span id="costEst">$0.00</span>
     &nbsp;·&nbsp; With name lookup: <span id="costEstNames">$0.00</span>
-    &nbsp;·&nbsp; Max 110 businesses per region
+    &nbsp;·&nbsp; Max ~110 per region
   </div>
 
-  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
     <button class="btn" id="runBtn" onclick="toggleRun()">Scrape Hipages ›</button>
-    <button class="btn-ghost" id="getNames" onclick="getOwnerNames()" disabled>Get Owner Names (Claude)</button>
+    <button class="btn-ghost" id="getNames" onclick="getOwnerNames()" disabled>Get Owner Names</button>
     <button class="btn-ghost" id="exportBtn" onclick="exportCSV()" disabled>Export CSV → Zoho</button>
-    <div style="margin-left:auto;font-size:11px;color:var(--muted)">Name lookup: ~$0.013/business · Only run if needed</div>
+    <div style="margin-left:auto;font-size:11px;color:var(--muted)">Names: ~$0.013/business · optional</div>
   </div>
 
   <div class="stats-row">
     <div class="stat-card"><div class="val" id="statTotal">0</div><div class="lbl">Scraped</div></div>
     <div class="stat-card"><div class="val" id="statPhone">0</div><div class="lbl">Have Phone</div></div>
     <div class="stat-card"><div class="val" id="statNamed">0</div><div class="lbl">Named</div></div>
-    <div class="stat-card"><div class="val" id="statComplete">0</div><div class="lbl">Name + Phone</div></div>
+    <div class="stat-card"><div class="val" id="statComplete">0</div><div class="lbl">Complete</div></div>
     <div class="stat-card"><div class="val" id="statDupe">0</div><div class="lbl">Dupes Skipped</div></div>
     <div class="stat-card"><div class="val" id="statCost" style="font-size:14px">$0.00</div><div class="lbl">Est. Cost</div></div>
   </div>
 
   <div class="queue-bar" id="queueBar">
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px">
-      <span id="queueLabel">Running...</span><span id="queueCount"></span>
+      <span id="queueLabel"></span><span id="queueCount"></span>
     </div>
     <div style="background:var(--surface2);border-radius:3px;height:5px;overflow:hidden">
       <div id="queueFill" style="height:100%;background:var(--accent);width:0%;transition:width .4s;border-radius:3px"></div>
     </div>
   </div>
 
-  <div class="status-bar"><div class="dot" id="dot"></div><span id="statusMsg">Select a trade category and postcode, then click Scrape Hipages.</span></div>
+  <div class="status-bar"><div class="dot" id="dot"></div><span id="statusMsg">Select a category and regions, then click Scrape Hipages.</span></div>
   <div class="progress-list" id="progressList"></div>
 
   <div class="toolbar">
-    <div class="count-badge"><strong id="leadCount">0</strong> businesses · <strong id="selectedCount">0</strong> selected</div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-ghost" onclick="selectAll()">Select all</button>
-    </div>
+    <div style="font-size:11px;color:var(--muted)"><strong style="color:var(--accent)" id="leadCount">0</strong> businesses · <strong style="color:var(--accent)" id="selectedCount">0</strong> selected</div>
+    <button class="btn-ghost" onclick="selectAll()">Select all</button>
   </div>
 
   <div class="table-wrap">
     <table>
-      <colgroup>
-        <col style="width:28px"/><col style="width:220px"/><col style="width:160px"/>
-        <col style="width:120px"/><col style="width:100px"/><col style="width:80px"/>
-        <col style="width:70px"/><col style="width:80px"/><col style="width:40px"/>
-      </colgroup>
-      <thead>
-        <tr><th></th><th>Business</th><th>Owner Name</th><th>Phone</th><th>Suburb</th><th>State</th><th>Rating</th><th>Status</th><th></th></tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="9"><div class="empty-state">Select a category and postcode, then click Scrape Hipages.</div></td></tr>
-      </tbody>
+      <colgroup><col style="width:28px"/><col style="width:220px"/><col style="width:150px"/><col style="width:120px"/><col style="width:120px"/><col style="width:80px"/><col style="width:100px"/><col style="width:80px"/><col style="width:30px"/></colgroup>
+      <thead><tr><th></th><th>Business</th><th>Owner Name</th><th>Phone</th><th>Suburb</th><th>State</th><th>Rating / Hires</th><th>Status</th><th></th></tr></thead>
+      <tbody id="tableBody"><tr><td colspan="9"><div class="empty-state">Select regions and click Scrape Hipages.</div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ COVERAGE ═══ -->
+<div class="pane" id="pane-coverage">
+  <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-end;flex-wrap:wrap">
+    <div class="field-wrap" style="width:200px"><label>Filter Category</label>
+      <select id="covCatFilter" onchange="renderCoverage()"><option value="">All categories</option></select>
+    </div>
+    <div class="field-wrap" style="width:150px"><label>Filter State</label>
+      <select id="covStateFilter" onchange="renderCoverage()">
+        <option value="">All states</option>
+        <option>QLD</option><option>WA</option><option>NSW</option><option>VIC</option><option>SA</option>
+      </select>
+    </div>
+    <button class="btn-ghost" onclick="loadCoverage()">↺ Refresh</button>
+  </div>
+  <div class="status-bar"><div class="dot" id="covDot"></div><span id="covStatus">Click Refresh to load coverage data.</span></div>
+  <div class="table-wrap">
+    <table class="cov-table">
+      <thead><tr><th>Region</th><th>Category</th><th>State</th><th>Last Run</th><th>Leads</th><th>Mobiles</th><th>Run By</th></tr></thead>
+      <tbody id="covBody"><tr><td colspan="7"><div class="empty-state">No data yet.</div></td></tr></tbody>
     </table>
   </div>
 </div>
 
 <!-- ═══ SOURCE INTEL ═══ -->
-<div class="pane" id="pane-info">
+<div class="pane" id="pane-intel">
   <div class="info-card">
-    <h3>Why Hipages for Trades?</h3>
-    <div class="info-row"><span class="label">Google Maps + Claude</span><span class="value red">~$0.40/lead · Low hit rate for trades · Auto electricians in results</span></div>
-    <div class="info-row"><span class="label">Hipages scraper</span><span class="value green">~$0.015/lead · Phone direct from listing · 100% trade businesses</span></div>
-    <div class="info-row"><span class="label">Why tradies use Hipages</span><span class="value">Customers contact them directly — mobile is the whole point of the listing</span></div>
-    <div class="info-row"><span class="label">Categories available</span><span class="value">120+ trade categories across all Australian states</span></div>
-    <div class="info-row"><span class="label">False positive rate</span><span class="value green">Near zero — all results are verified trade businesses</span></div>
-  </div>
-  <div class="info-card">
-    <h3>Cost Breakdown</h3>
-    <div class="info-row"><span class="label">Apify scrape (Hipages)</span><span class="value green">~$0.002 per business</span></div>
-    <div class="info-row"><span class="label">Owner name lookup (Claude)</span><span class="value orange">~$0.013 per business (optional)</span></div>
-    <div class="info-row"><span class="label">Total with name</span><span class="value">~$0.015 per lead</span></div>
-    <div class="info-row"><span class="label">100 leads</span><span class="value">~$1.50 total</span></div>
-    <div class="info-row"><span class="label">vs Google Maps + Claude</span><span class="value red">~$40.00 for same 100 leads</span></div>
+    <h3>Why Hipages for Trades</h3>
+    <div class="info-row"><span class="label">Google Maps + Claude</span><span class="value red">~$0.40/lead · Low hit rate · Auto electricians in results</span></div>
+    <div class="info-row"><span class="label">Hipages scraper</span><span class="value green">~$0.002/lead · Phone from listing · 100% trade businesses</span></div>
+    <div class="info-row"><span class="label">Max per region</span><span class="value">110 businesses (Hipages platform limit)</span></div>
+    <div class="info-row"><span class="label">Overlap between regions</span><span class="value green">Near zero — tested Brisbane vs Gold Coast</span></div>
+    <div class="info-row"><span class="label">QLD total coverage est.</span><span class="value">~1,000+ per category across all QLD regions</span></div>
   </div>
   <div class="info-card">
     <h3>Industry Source Map</h3>
-    <div class="info-row"><span class="label">Trades (aircon, electrical, plumbing)</span><span class="value green">✓ Hipages — use this tool</span></div>
+    <div class="info-row"><span class="label">Trades (aircon, electrical, plumbing)</span><span class="value green">✓ Hipages — this tool</span></div>
     <div class="info-row"><span class="label">Real estate agents</span><span class="value green">✓ Lead Prospector (Google Maps + REIWA)</span></div>
     <div class="info-row"><span class="label">Accountants, lawyers, mortgage brokers</span><span class="value">Lead Prospector (Google Maps)</span></div>
-    <div class="info-row"><span class="label">IT companies, recruitment agencies</span><span class="value orange">LinkedIn scraper (Job Board Scraper tool)</span></div>
-    <div class="info-row"><span class="label">Companies hiring offshore already</span><span class="value orange">Job Board Scraper (Seek, OnlineJobs.ph)</span></div>
+    <div class="info-row"><span class="label">IT companies, recruitment</span><span class="value orange">Job Board Scraper (LinkedIn)</span></div>
+    <div class="info-row"><span class="label">Companies already hiring offshore</span><span class="value orange">Job Board Scraper (Seek, OnlineJobs.ph)</span></div>
+  </div>
+  <div class="info-card">
+    <h3>Campaign Convention</h3>
+    <div class="info-row"><span class="label">Campaign name format</span><span class="value">Category — State (e.g. "Air Conditioning — QLD")</span></div>
+    <div class="info-row"><span class="label">Service Interest</span><span class="value">Offshore Staffing</span></div>
+    <div class="info-row"><span class="label">Lead Source</span><span class="value">Trades Prospector — Offshore 24/7</span></div>
+    <div class="info-row"><span class="label">Headcount</span><span class="value">1-3</span></div>
   </div>
 </div>
 
@@ -328,28 +327,29 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
   <div class="info-card">
     <h3>Key Status</h3>
     <div class="info-row"><span class="label">Apify token</span><span class="value" id="apifyStatus">Not saved</span></div>
-    <div class="info-row"><span class="label">Anthropic key</span><span class="value" id="anthropicStatus">Not saved (optional — only for name lookup)</span></div>
+    <div class="info-row"><span class="label">Anthropic key</span><span class="value" id="anthropicStatus">Not saved</span></div>
+    <div class="info-row"><span class="label">Run by</span><span class="value" id="runByStatus">Not set</span></div>
   </div>
 </div>
 
-</div><!-- /shell -->
-
+</div>
 <script>
-const APIFY_DEFAULT='';
 const ACTOR_ID='websift~hipages-lead-extractor';
 const SB_URL='https://ojifhwprkapdqsfsufrl.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qaWZod3Bya2FwZHFzZnN1ZnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI0MjcsImV4cCI6MjA4OTI2ODQyN30.f8UZw7qCoOFG6MosRU3FCCyihphFfGh_-HzF7B5l_T4';
 
 let leads=[],isRunning=false,stopRequested=false,dupeCount=0;
+let covRuns=[];
+let doneRegions={}; // key: "region|category" → run date
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load',()=>{
   const ak=localStorage.getItem('tp_ak'),apk=localStorage.getItem('tp_apify'),rb=localStorage.getItem('tp_rb');
   if(ak){document.getElementById('apiKey').value=ak;document.getElementById('anthropicStatus').textContent='Saved ✓';document.getElementById('anthropicStatus').className='value green';}
-  document.getElementById('apifyKey').value=apk||APIFY_DEFAULT;
-  if(apk||APIFY_DEFAULT){document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
-  if(rb)document.getElementById('runBy').value=rb;
+  if(apk){document.getElementById('apifyKey').value=apk;document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
+  if(rb){document.getElementById('runBy').value=rb;document.getElementById('runByStatus').textContent=rb;}
   updateCostEst();
+  loadDoneRegions();
 });
 
 function saveKeys(){
@@ -358,7 +358,7 @@ function saveKeys(){
   const rb=document.getElementById('runBy').value.trim();
   if(ak){localStorage.setItem('tp_ak',ak);document.getElementById('anthropicStatus').textContent='Saved ✓';document.getElementById('anthropicStatus').className='value green';}
   if(apk){localStorage.setItem('tp_apify',apk);document.getElementById('apifyStatus').textContent='Saved ✓';document.getElementById('apifyStatus').className='value green';}
-  if(rb)localStorage.setItem('tp_rb',rb);
+  if(rb){localStorage.setItem('tp_rb',rb);document.getElementById('runByStatus').textContent=rb;}
   setStatus('Keys saved.','done');
 }
 
@@ -367,26 +367,56 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`pane-${name}`).classList.add('active');
   document.querySelectorAll(`.tab[onclick="switchTab('${name}')"]`).forEach(t=>t.classList.add('active'));
+  if(name==='coverage')loadCoverage();
 }
 
+// ─── Region chips ──────────────────────────────────────────────────────────────
 function toggleRegion(el){
+  if(el.classList.contains('done'))return; // already scraped — block re-run
   el.classList.toggle('active');
   updateCostEst();
 }
 
-function getPostcodes(){
-  return [...document.querySelectorAll('.region-chip.active')].map(el=>parseInt(el.dataset.pc));
+function getSelectedRegions(){
+  return [...document.querySelectorAll('.region-chip.active')].map(el=>({
+    pc:parseInt(el.dataset.pc),
+    region:el.dataset.region,
+    state:el.dataset.state
+  }));
 }
 
 function updateCostEst(){
-  const pcs=getPostcodes();
-  const maxPerRegion=110;
-  const totalEst=pcs.length*maxPerRegion;
-  const est=(totalEst*2/1000);
-  const estNames=est+(totalEst*0.013);
+  const regions=getSelectedRegions();
+  const est=regions.length*110*2/1000;
+  const estNames=est+(regions.length*110*0.013);
   document.getElementById('costEst').textContent=`~$${est.toFixed(2)}`;
   document.getElementById('costEstNames').textContent=`~$${estNames.toFixed(2)}`;
-  document.getElementById('pcCount').textContent=pcs.length;
+  document.getElementById('pcCount').textContent=regions.length;
+}
+
+async function loadDoneRegions(){
+  try{
+    const category=document.getElementById('category').value;
+    const rows=await sbFetch(`trades_runs?select=region,category,created_at,lead_count,mobile_count&order=created_at.desc&limit=500`);
+    doneRegions={};
+    (rows||[]).forEach(r=>{doneRegions[`${r.region}|${r.category}`]=r.created_at;});
+    updateRegionStatus();
+  }catch{}
+}
+
+function updateRegionStatus(){
+  const category=document.getElementById('category').value;
+  document.querySelectorAll('.region-chip').forEach(el=>{
+    const key=`${el.dataset.region}|${category}`;
+    if(doneRegions[key]){
+      el.classList.add('done');
+      el.classList.remove('active');
+      const d=new Date(doneRegions[key]).toLocaleDateString('en-AU');
+      el.title=`Already scraped on ${d}`;
+    } else {
+      el.classList.remove('done');
+    }
+  });
 }
 
 // ─── Status / Progress ─────────────────────────────────────────────────────────
@@ -404,6 +434,40 @@ function addProgress(msg,state){
 }
 function clearProgress(){const l=document.getElementById('progressList');l.innerHTML='';l.classList.remove('visible');}
 
+// ─── Supabase ─────────────────────────────────────────────────────────────────
+async function sbFetch(path,opts={}){
+  const r=await fetch(`${SB_URL}/rest/v1/${path}`,{
+    ...opts,
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':opts.prefer||'return=representation',...(opts.headers||{})}
+  });
+  if(!r.ok)throw new Error(await r.text());
+  const text=await r.text();return text?JSON.parse(text):null;
+}
+
+async function saveRun(runId,region,pc,category,state,leadCount,mobileCount){
+  try{
+    await sbFetch('trades_runs',{method:'POST',prefer:'return=minimal',body:JSON.stringify({
+      id:runId,region,postcode:pc,category,state,lead_count:leadCount,mobile_count:mobileCount,
+      run_by:localStorage.getItem('tp_rb')||'unknown'
+    })});
+  }catch(e){console.warn('Save run failed:',e.message);}
+}
+
+async function saveLeads(runId,leadsToSave){
+  if(!leadsToSave.length)return;
+  try{
+    const rows=leadsToSave.map(l=>({
+      run_id:runId,company:l.company,contact:l.contact||null,
+      phone:l.phone||null,mobile:l.isMobile?l.phone:null,
+      suburb:l.suburb||null,state:l.state||null,postcode:l.postcode,
+      category:l.category,rating:l.rating?parseFloat(l.rating):null,
+      hires:l.hires||null,profile_url:l.profileUrl||null,
+      has_abn:l.hasAbn||false,name_source:l.nameSource||null
+    }));
+    await sbFetch('trades_leads',{method:'POST',prefer:'return=minimal',body:JSON.stringify(rows)});
+  }catch(e){console.warn('Save leads failed:',e.message);}
+}
+
 // ─── Apify runner ─────────────────────────────────────────────────────────────
 async function runApifyActor(apifyKey,actorId,input){
   const startResp=await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${apifyKey}`,{
@@ -413,20 +477,20 @@ async function runApifyActor(apifyKey,actorId,input){
   const startData=await startResp.json();
   const runId=startData.data?.id;
   if(!runId)throw new Error('No run ID from Apify');
-  for(let i=0;i<60;i++){
-    await new Promise(r=>setTimeout(r,8000));
+  for(let i=0;i<90;i++){
+    await new Promise(r=>setTimeout(r,5000));
     const sr=await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${apifyKey}`);
     const sd=await sr.json();
     const status=sd.data?.status;
     if(status==='SUCCEEDED')break;
     if(['FAILED','ABORTED','TIMED-OUT'].includes(status))throw new Error(`Apify run ${status}`);
   }
-  const dr=await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${apifyKey}&format=json&limit=1000`);
+  const dr=await fetch(`https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${apifyKey}&format=json&limit=500`);
   if(!dr.ok)throw new Error(`Failed to fetch results: ${dr.status}`);
   return await dr.json();
 }
 
-// ─── Validate/clean mobile ─────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function validateMobile(raw){
   if(!raw)return null;
   let m=String(raw).replace(/\s|-|\(|\)/g,'').trim();
@@ -438,26 +502,35 @@ function validateMobile(raw){
 }
 
 function cleanName(raw){
-  if(!raw||raw==='—')return null;
+  if(!raw||raw==='—'||raw==='null')return null;
   let name=raw.split(/[&(|+\/]/)[0].trim();
-  name=name.replace(/\b(Founder|Director|Principal|CEO|MD|Owner|Manager|Pty|Ltd)\b.*$/i,'').trim();
+  name=name.replace(/\b(Founder|Director|Principal|CEO|MD|Owner|Manager|Pty|Ltd|PTY|LTD)\b.*$/i,'').trim();
   name=name.replace(/[,\-:]+$/,'').trim();
   if(!name.includes(' ')||name.length<4||name.length>50)return null;
-  return name;
+  return name||null;
 }
 
-// ─── Extract state from postcode ───────────────────────────────────────────────
 function stateFromPostcode(pc){
   const n=parseInt(pc);
+  if(n>=2600&&n<=2639)return'ACT';
   if(n>=1000&&n<=2999)return'NSW';
   if(n>=3000&&n<=3999)return'VIC';
   if(n>=4000&&n<=4999)return'QLD';
   if(n>=5000&&n<=5999)return'SA';
   if(n>=6000&&n<=6999)return'WA';
   if(n>=7000&&n<=7999)return'TAS';
-  if(n>=800&&n<=999)return'NT';
-  if(n>=2600&&n<=2639)return'ACT';
   return'';
+}
+
+function extractPersonFromBusinessName(name){
+  if(!name)return null;
+  if(/\b(Pty|Ltd|PTY|LTD|Group|Services|Solutions|Holdings|Trading|Industries|Enterprises|Air|Conditioning|HVAC|Refrigeration|Electrical|Electric|Plumbing|Roofing|Solar|Pool|Pest|Cleaning|Security|Handyman|Building|Construction|Tech|Systems|Australia)\b/i.test(name))return null;
+  const words=name.trim().split(/\s+/);
+  if(words.length>=2&&words.length<=3){
+    const formatted=words.map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');
+    if(/^[A-Z][a-z]+ [A-Z]/.test(formatted))return formatted;
+  }
+  return null;
 }
 
 // ─── Main run ─────────────────────────────────────────────────────────────────
@@ -467,211 +540,136 @@ function toggleRun(){
 }
 
 async function runScrape(){
-  const apifyKey=localStorage.getItem('tp_apify')||document.getElementById('apifyKey').value.trim()||APIFY_DEFAULT;
+  const apifyKey=localStorage.getItem('tp_apify')||document.getElementById('apifyKey').value.trim();
   const category=document.getElementById('category').value;
-  const maxResults=parseInt(document.getElementById('maxResults').value)||100;
-  const postcodes=getPostcodes();
+  const regions=getSelectedRegions();
 
-  if(postcodes.length===0){setStatus('Enter a valid postcode or range.','error');return;}
+  if(!apifyKey){setStatus('Add Apify token in Settings first.','error');return;}
+  if(regions.length===0){setStatus('Select at least one region.','error');return;}
 
   const btn=document.getElementById('runBtn');
   btn.textContent='Stop ✕';btn.classList.add('btn-stop');
   isRunning=true;stopRequested=false;dupeCount=0;
   leads=[];clearProgress();renderTable();updateStats();
 
-  // Load existing mobiles from Supabase for dedup
+  // Load existing mobiles for dedup
   let existingMobiles=new Set();
   try{
-    const rows=await sbFetch('leads?mobile=not.is.null&select=mobile&limit=5000');
+    const rows=await sbFetch(`trades_leads?mobile=not.is.null&select=mobile&limit=10000`);
     existingMobiles=new Set((rows||[]).map(r=>(r.mobile||'').replace(/\s/g,'')));
+    // Also check leads table
+    const leadsRows=await sbFetch(`leads?mobile=not.is.null&select=mobile&limit=5000`);
+    (leadsRows||[]).forEach(r=>existingMobiles.add((r.mobile||'').replace(/\s/g,'')));
     addProgress(`Loaded ${existingMobiles.size} existing mobiles for dedup`,'done');
   }catch{}
 
-  setStatus(`Scraping ${category} across ${postcodes.length} postcode(s)...`,'active');
-
-  for(let i=0;i<postcodes.length;i++){
+  for(let i=0;i<regions.length;i++){
     if(stopRequested)break;
-    const pc=postcodes[i];
-    const state=stateFromPostcode(pc);
+    const {pc,region,state}=regions[i];
 
-    // Queue bar
-    const qbar=document.getElementById('queueBar');
-    qbar.classList.add('visible');
-    document.getElementById('queueLabel').textContent=`Postcode ${pc} (${i+1}/${postcodes.length})`;
-    document.getElementById('queueCount').textContent=`${i+1} / ${postcodes.length}`;
-    document.getElementById('queueFill').style.width=`${Math.round((i+1)/postcodes.length*100)}%`;
+    document.getElementById('queueBar').classList.add('visible');
+    document.getElementById('queueLabel').textContent=`${region} — ${category} (${i+1}/${regions.length})`;
+    document.getElementById('queueCount').textContent=`${i+1} / ${regions.length}`;
+    document.getElementById('queueFill').style.width=`${Math.round((i+1)/regions.length*100)}%`;
 
-    const prog=addProgress(`Scraping ${category} in ${pc}...`,'active');
+    const prog=addProgress(`Scraping ${category} in ${region}...`,'active');
     try{
       const items=await runApifyActor(apifyKey,ACTOR_ID,{category,postcode:pc,sortBy:'Total Hired'});
       let added=0,dupes=0;
+      const runId=crypto.randomUUID();
+      const runLeads=[];
+
       for(const item of items){
-        // Actual field names from websift~hipages-lead-extractor output
         const mobile=validateMobile(item.mobile||item.phone||'');
         const phone=item.phone||item.mobile||'';
         const cleanPhone=mobile||phone;
-        // Dedup check
         if(mobile&&existingMobiles.has(mobile.replace(/\s/g,''))){dupes++;dupeCount++;continue;}
         if(mobile)existingMobiles.add(mobile.replace(/\s/g,''));
-        const rating=item.starRating?.rating||null;
-        const totalHired=item.starRating?.totalHired||null;
-        leads.push({
+        const lead={
           id:Date.now()+Math.random(),selected:true,
           company:item.name||'',
-          contact:cleanName(item.ownerName||item.contactName||''),
-          phone:cleanPhone,
-          isMobile:!!mobile,
-          suburb:item.serviceArea||item.suburb||item.location||'',
-          state:item.state||state,
-          postcode:pc,
-          rating,
-          hires:totalHired,
+          contact:cleanName(item.ownerName||''),
+          phone:cleanPhone,isMobile:!!mobile,
+          suburb:item.serviceArea||item.suburb||'',
+          state:item.state||state,postcode:pc,region,
+          rating:item.starRating?.rating||null,
+          hires:item.starRating?.totalHired||null,
           profileUrl:item.profilePageFullUrl||null,
           hasAbn:item.hasValidAbn||false,
-          category,
-          raw:item
-        });
+          category
+        };
+        leads.push(lead);
+        runLeads.push(lead);
         added++;
       }
+
+      // Save to Supabase
+      const mobileCount=runLeads.filter(l=>l.isMobile).length;
+      await saveRun(runId,region,pc,category,state,added,mobileCount);
+      await saveLeads(runId,runLeads);
+
+      // Mark region as done
+      doneRegions[`${region}|${category}`]=new Date().toISOString();
+      updateRegionStatus();
+
       prog.className='prog-item done';
-      prog.querySelector('span:last-child').textContent=`${pc}: ${added} businesses found${dupes?' ('+dupes+' dupes skipped)':''}`;
+      prog.querySelector('span:last-child').textContent=`${region}: ${added} found · ${mobileCount} mobiles · ${dupes} dupes skipped`;
     }catch(e){
       prog.className='prog-item err';
-      prog.querySelector('span:last-child').textContent=`${pc}: Error — ${e.message.slice(0,60)}`;
+      prog.querySelector('span:last-child').textContent=`${region}: Error — ${e.message.slice(0,60)}`;
     }
     renderTable();updateStats();
-    if(i<postcodes.length-1&&!stopRequested)await new Promise(r=>setTimeout(r,2000));
+    if(i<regions.length-1&&!stopRequested)await new Promise(r=>setTimeout(r,2000));
   }
 
   document.getElementById('queueBar').classList.remove('visible');
   isRunning=false;stopRequested=false;
   btn.textContent='Scrape Hipages ›';btn.classList.remove('btn-stop');
-
   const withPhone=leads.filter(l=>l.phone).length;
-  setStatus(`Done — ${leads.length} businesses, ${withPhone} with phone. ${dupeCount} dupes skipped.`,'done');
+  setStatus(`Done — ${leads.length} businesses scraped · ${withPhone} with phone · ${dupeCount} dupes skipped · Saved to Supabase`,'done');
   document.getElementById('exportBtn').disabled=false;
-  document.getElementById('getNames').disabled=false;
+  document.getElementById('getNames').disabled=leads.length===0;
   updateStats();
 }
 
-// ─── Stage 1: ABN lookup (free) ───────────────────────────────────────────────
-async function lookupABN(companyName,suburb){
-  try{
-    // ABN bulk search — public API, no key needed
-    const query=encodeURIComponent(`${companyName} ${suburb||''}`);
-    const resp=await fetch(`https://abr.business.gov.au/json/MatchingNames.aspx?name=${query}&maxResults=5&guid=`);
-    const text=await resp.text();
-    // Response is JSONP-ish — extract JSON
-    const match=text.match(/\{[\s\S]*\}/);
-    if(!match)return null;
-    const data=JSON.parse(match[0]);
-    const names=data.Names||[];
-    // Find exact or close match
-    const compLower=companyName.toLowerCase();
-    for(const n of names){
-      const entityName=n.Name||'';
-      // Sole trader = individual name registered — looks like "Smith John"
-      // Check if it's a person name (no Pty, Ltd, Trust etc)
-      if(!/\b(Pty|Ltd|Trust|Group|Services|Solutions|Holdings|Trading)\b/i.test(entityName)){
-        // Reformat "SMITH JOHN" → "John Smith"
-        const parts=entityName.split(' ').filter(Boolean);
-        if(parts.length>=2){
-          const formatted=parts.map(p=>p.charAt(0).toUpperCase()+p.slice(1).toLowerCase()).reverse().join(' ');
-          return formatted;
-        }
-      }
-    }
-  }catch{}
-  return null;
-}
-
-// ─── Stage 2: Hipages profile fetch via Claude (no search, just fetch) ─────────
-async function lookupHipagesProfile(apiKey,lead){
-  if(!lead.profileUrl)return null;
-  try{
-    const prompt=`Fetch this Hipages business profile page and find the owner's name.
-
-URL: ${lead.profileUrl}
-
-The owner name is usually in:
-- The "About" section ("Hi, I'm [Name]" or "My name is [Name]")
-- The business headline or description
-- The profile photo caption
-
-Return ONLY raw JSON: {"contact":"First Last or null"}
-If no personal name found (only business name), return null.`;
-
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',max_tokens:100,
-        // No web_search tool — use built-in fetch only, zero search cost
-        tools:[{type:'web_search_20250305',name:'web_search',max_uses:1}],
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data=await resp.json();
-    let text='';for(const b of data.content){if(b.type==='text')text+=b.text;}
-    const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*?\}/);
-    if(match){
-      const r=JSON.parse(match[0]);
-      return cleanName(r.contact||'')||null;
-    }
-  }catch{}
-  return null;
-}
-
-// ─── Get owner names — 3-stage pipeline ───────────────────────────────────────
+// ─── Name lookup ──────────────────────────────────────────────────────────────
 async function getOwnerNames(){
   const apiKey=localStorage.getItem('tp_ak')||document.getElementById('apiKey').value.trim();
-  if(!apiKey){setStatus('Add Anthropic key in Settings for name lookup.','error');return;}
-
+  if(!apiKey){setStatus('Add Anthropic key in Settings.','error');return;}
   const needsName=leads.filter(l=>l.selected&&!l.contact&&l.phone&&l.company);
   if(needsName.length===0){setStatus('No leads need name lookup.','');return;}
 
   const btn=document.getElementById('getNames');
   btn.disabled=true;btn.textContent='Getting names...';
-
-  let abnFound=0,profileFound=0,claudeFound=0,notFound=0;
+  let fromBizName=0,fromClaude=0,skipped=0,notFound=0;
 
   for(let i=0;i<needsName.length;i++){
     if(stopRequested)break;
     const lead=needsName[i];
     lead.lookingUp=true;renderTable();
-    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — trying ABN lookup (free)...`,'active');
 
-    // Stage 1: ABN lookup — free, no API cost
-    const abnName=await lookupABN(lead.company,lead.suburb);
-    if(abnName){
-      lead.contact=abnName;lead.nameSource='abn';
-      lead.lookingUp=false;abnFound++;
-      renderTable();updateStats();
-      await new Promise(r=>setTimeout(r,500));
-      continue;
+    // Stage 1: Is the business name already a person name?
+    const personName=extractPersonFromBusinessName(lead.company);
+    if(personName){
+      lead.contact=personName;lead.nameSource='biz name';
+      lead.lookingUp=false;fromBizName++;
+      renderTable();updateStats();continue;
     }
 
-    // Stage 2: Hipages profile fetch — ~$0.003 in tokens, no search fee
-    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — fetching Hipages profile...`,'active');
-    if(lead.profileUrl){
-      const profileName=await lookupHipagesProfile(apiKey,lead);
-      if(profileName){
-        lead.contact=profileName;lead.nameSource='hipages';
-        lead.lookingUp=false;profileFound++;
-        renderTable();updateStats();
-        await new Promise(r=>setTimeout(r,1500));
-        continue;
-      }
+    // Stage 2: Skip Pty Ltd — waste of money
+    if(/\b(Pty Ltd|PTY LTD)\b/.test(lead.company)){
+      lead.nameSource='pty — skipped';
+      lead.lookingUp=false;skipped++;
+      renderTable();updateStats();continue;
     }
 
-    // Stage 3: Claude with web search — last resort, ~$0.013
-    setStatus(`[${i+1}/${needsName.length}] ${lead.company} — Claude search (last resort)...`,'active');
+    // Stage 3: Claude with Hipages profile URL
+    setStatus(`[${i+1}/${needsName.length}] ${lead.company}...`,'active');
     try{
-      const prompt=`Find the owner or principal's full name for this Australian ${lead.category} business.
-Business: ${lead.company}
-Location: ${lead.suburb||''} ${lead.state||''}
-Phone: ${lead.phone}
-Search Google and any directory. Return ONLY raw JSON: {"contact":"First Last or null"}`;
+      const prompt=`Find the owner name for this Australian trade business.
+${lead.profileUrl?`Hipages profile: ${lead.profileUrl}\nVisit this page, look for owner name in About section.`:`Business: ${lead.company}\nSearch Google for owner name.`}
+Category: ${lead.category} · Phone: ${lead.phone}
+Return ONLY raw JSON: {"contact":"First Last or null"}`;
       const resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -685,53 +683,47 @@ Search Google and any directory. Return ONLY raw JSON: {"contact":"First Last or
       if(match){
         const r=JSON.parse(match[0]);
         const name=cleanName(r.contact||'');
-        if(name){lead.contact=name;lead.nameSource='claude';claudeFound++;}
+        if(name){lead.contact=name;lead.nameSource='claude';fromClaude++;}
         else notFound++;
       }else notFound++;
     }catch{notFound++;}
-
     lead.lookingUp=false;
     renderTable();updateStats();
     if(i<needsName.length-1)await new Promise(r=>setTimeout(r,2000));
   }
-
-  btn.disabled=false;btn.textContent='Get Owner Names (Claude)';
-  setStatus(`Done — ABN: ${abnFound} free · Hipages: ${profileFound} cheap · Claude: ${claudeFound} · Not found: ${notFound}`,'done');
+  btn.disabled=false;btn.textContent='Get Owner Names';
+  setStatus(`Names done — Biz name: ${fromBizName} · Claude: ${fromClaude} · Pty skipped: ${skipped} · Not found: ${notFound}`,'done');
 }
 
-// ─── Table render ─────────────────────────────────────────────────────────────
+// ─── Table ────────────────────────────────────────────────────────────────────
 function renderTable(){
   const tbody=document.getElementById('tableBody');
-  if(leads.length===0){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state">Select a category and postcode, then click Scrape Hipages.</div></td></tr>';return;}
-
   const sf=document.getElementById('stateFilter').value;
   const visible=sf?leads.filter(l=>l.state===sf):leads;
-
+  if(visible.length===0){tbody.innerHTML='<tr><td colspan="9"><div class="empty-state">No results yet.</div></td></tr>';
+    document.getElementById('leadCount').textContent=0;document.getElementById('selectedCount').textContent=0;return;}
   tbody.innerHTML=visible.map(l=>{
     const status=l.lookingUp?'<span style="color:var(--muted);font-size:10px">searching...</span>'
-      :l.contact&&l.phone?`<span class="chip chip-complete">complete</span>`
-      :l.phone&&!l.contact?`<span class="chip chip-no-name">no name</span>`
-      :l.contact&&!l.phone?`<span class="chip chip-no-name">no phone</span>`
-      :'<span style="color:var(--danger);font-size:10px">incomplete</span>';
-    const rating=l.rating?`<span style="color:var(--accent)">★</span> ${parseFloat(l.rating).toFixed(1)}${l.hires?' · '+l.hires+' hires':''}`:
-      l.hires?l.hires+' hires':'—';
+      :l.contact&&l.phone?`<span class="chip chip-done">complete</span>`
+      :`<span class="chip chip-noname">no name</span>`;
+    const rating=l.rating?`★ ${parseFloat(l.rating).toFixed(1)}${l.hires?' · '+l.hires+'h':''}`:l.hires?l.hires+'h':'—';
     return`<tr>
-      <td><input type="checkbox" ${l.selected?'checked':''} onchange="toggleSelect('${l.id}',this.checked)"/></td>
-      <td class="cell-primary" title="${l.company}">${l.company}</td>
+      <td><input type="checkbox" ${l.selected?'checked':''} onchange="toggleSelect(${l.id},this.checked)"/></td>
+      <td class="cell-primary" style="max-width:220px;overflow:hidden;text-overflow:ellipsis" title="${l.company}">${l.company}</td>
       <td class="cell-secondary">${l.contact||'—'}${l.nameSource?`<div style="font-size:10px;color:var(--muted)">${l.nameSource}</div>`:''}</td>
-      <td><div class="cell-primary">${l.phone||'—'}</div>${l.isMobile?'<div style="margin-top:2px"><span class="chip chip-mobile">mobile</span></div>':''}</td>
+      <td><div>${l.phone||'—'}</div>${l.isMobile?'<span class="chip chip-mobile">mobile</span>':''}</td>
       <td class="cell-secondary">${l.suburb||'—'}</td>
       <td class="cell-dim">${l.state||'—'}</td>
-      <td class="cell-dim" style="white-space:nowrap">${rating}</td>
+      <td class="cell-dim">${rating}</td>
       <td>${status}</td>
-      <td><button class="remove-btn" onclick="removeLead('${l.id}')">×</button></td>
+      <td><button class="remove-btn" onclick="removeLead(${l.id})">×</button></td>
     </tr>`;
   }).join('');
   document.getElementById('leadCount').textContent=visible.length;
   document.getElementById('selectedCount').textContent=visible.filter(l=>l.selected).length;
 }
 
-function toggleSelect(id,checked){const l=leads.find(l=>l.id==id);if(l)l.selected=checked;renderTable();}
+function toggleSelect(id,checked){const l=leads.find(l=>l.id==id);if(l){l.selected=checked;renderTable();}}
 function selectAll(){const all=leads.every(l=>l.selected);leads.forEach(l=>l.selected=!all);renderTable();}
 function removeLead(id){leads=leads.filter(l=>l.id!=id);renderTable();updateStats();}
 
@@ -741,25 +733,66 @@ function updateStats(){
   document.getElementById('statNamed').textContent=leads.filter(l=>l.contact).length;
   document.getElementById('statComplete').textContent=leads.filter(l=>l.contact&&l.phone).length;
   document.getElementById('statDupe').textContent=dupeCount;
-  const cost=(leads.length*0.002+(leads.filter(l=>l.contact).length*0.013));  document.getElementById('statCost').textContent=`$${cost.toFixed(2)}`;
+  const cost=leads.length*0.002+(leads.filter(l=>l.nameSource==='claude').length*0.013);
+  document.getElementById('statCost').textContent=`$${cost.toFixed(2)}`;
+}
+
+// ─── Coverage tab ─────────────────────────────────────────────────────────────
+async function loadCoverage(){
+  document.getElementById('covDot').className='dot active';
+  document.getElementById('covStatus').textContent='Loading...';
+  try{
+    const rows=await sbFetch('trades_runs?order=created_at.desc&limit=500');
+    covRuns=rows||[];
+    // Populate category filter
+    const cats=[...new Set(covRuns.map(r=>r.category))].sort();
+    const sel=document.getElementById('covCatFilter');
+    sel.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option>${c}</option>`).join('');
+    renderCoverage();
+    document.getElementById('covDot').className='dot done';
+    document.getElementById('covStatus').textContent=`${covRuns.length} runs loaded.`;
+  }catch(e){
+    document.getElementById('covDot').className='dot error';
+    document.getElementById('covStatus').textContent='Failed: '+e.message;
+  }
+}
+
+function renderCoverage(){
+  const cf=document.getElementById('covCatFilter').value;
+  const sf=document.getElementById('covStateFilter').value;
+  let filtered=covRuns.filter(r=>(!cf||r.category===cf)&&(!sf||r.state===sf));
+  const tbody=document.getElementById('covBody');
+  if(filtered.length===0){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">No runs found.</div></td></tr>';return;}
+  tbody.innerHTML=filtered.map(r=>{
+    const d=new Date(r.created_at);
+    const ds=d.toLocaleDateString('en-AU')+' '+d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+    return`<tr>
+      <td class="cell-primary">${r.region}</td>
+      <td class="cell-secondary">${r.category}</td>
+      <td class="cell-dim">${r.state||'—'}</td>
+      <td class="cell-dim">${ds}</td>
+      <td class="cell-primary">${r.lead_count}</td>
+      <td class="cell-primary" style="color:var(--accent)">${r.mobile_count}</td>
+      <td class="cell-dim">${r.run_by||'—'}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
 function exportCSV(){
   const sf=document.getElementById('stateFilter').value;
+  const category=document.getElementById('category').value;
   let toExport=leads.filter(l=>l.selected&&l.phone&&l.company);
   if(sf)toExport=toExport.filter(l=>l.state===sf);
-
-  // Dedup by phone
   const seen=new Set();
   toExport=toExport.filter(l=>{
     const p=(l.phone||'').replace(/\s/g,'');
-    if(seen.has(p))return false;
-    seen.add(p);return true;
+    if(seen.has(p))return false;seen.add(p);return true;
   });
+  if(toExport.length===0){setStatus('No leads to export.','error');return;}
 
-  if(toExport.length===0){setStatus('No leads to export — need at least a phone number.','error');return;}
-
+  const stateLabel=sf||'All States';
+  const campaignName=`${category} — ${stateLabel}`;
   const headers=['Last Name','First Name','Title','Company','Phone','Mobile','Email','Website','City','Province (State)','Country','Industry','Lead Source','Lead Status','Campaign Name','Service Interest','Estimated Headcount Needed','Description'];
   const rows=toExport.map(l=>{
     const parts=l.contact?l.contact.trim().split(/\s+/):[];
@@ -767,26 +800,17 @@ function exportCSV(){
     const lastName=parts.length>1?parts[parts.length-1]:'';
     const mobile=l.isMobile?l.phone:'';
     const phone=l.isMobile?'':l.phone;
-    return[lastName,firstName,'',l.company,phone,mobile,'','',l.suburb,l.state,'Australia',l.category,'Trades Prospector — Offshore 24/7','New','','Offshore Staffing','',`Hipages listing · Category: ${l.category} · Rating: ${l.rating||'N/A'} · Hires: ${l.hires||'N/A'}`];
+    const desc=`Hipages · ${category} · ${l.region||''} · ${l.suburb||''} ${l.state||''} · Rating: ${l.rating||'N/A'} · Hires: ${l.hires||'N/A'}`;
+    return[lastName,firstName,'',l.company,phone,mobile,'','',l.suburb,l.state,'Australia',
+      category,'Trades Prospector — Offshore 24/7','New',campaignName,'Offshore Staffing','1-3',desc];
   });
-
   const date=new Date().toISOString().slice(0,10);
-  const cat=document.getElementById('category').value.replace(/\s/g,'_');
+  const filename=`zoho_${category.replace(/\s/g,'_')}_${stateLabel}_${date}.csv`;
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`zoho_trades_${cat}_${date}.csv`;a.click();URL.revokeObjectURL(url);
-  setStatus(`Exported ${toExport.length} leads → Zoho ready.`,'done');
-}
-
-// ─── Supabase ─────────────────────────────────────────────────────────────────
-async function sbFetch(path){
-  const r=await fetch(`${SB_URL}/rest/v1/${path}`,{
-    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'}
-  });
-  if(!r.ok)throw new Error(await r.text());
-  const text=await r.text();
-  return text?JSON.parse(text):null;
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+  setStatus(`Exported ${toExport.length} leads → ${filename} · Campaign: ${campaignName}`,'done');
 }
 </script>
 </body>
