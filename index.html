@@ -212,6 +212,15 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
     </div>
   </div>
 
+  <!-- Manual postcode input -->
+  <div style="margin-bottom:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px">Manual Postcodes <span style="text-transform:none;letter-spacing:0;color:var(--muted)">· single (4001), comma list (4000,4005,4010), or range (4000-4020) · use to drill deeper within a region</span></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="manualPostcodes" placeholder="e.g. 4001, 4005-4010" style="max-width:380px" oninput="updateCostEst()"/>
+      <button class="btn-ghost" onclick="document.getElementById('manualPostcodes').value='';updateCostEst()" style="padding:6px 10px">Clear</button>
+    </div>
+  </div>
+
   <div class="cost-bar">
     Regions selected: <span id="pcCount">0</span>
     &nbsp;·&nbsp; Est. Apify cost: <span id="costEst">$0.00</span>
@@ -377,12 +386,33 @@ function toggleRegion(el){
   updateCostEst();
 }
 
+function parseManualPostcodes(){
+  const raw=document.getElementById('manualPostcodes').value.trim();
+  if(!raw)return[];
+  const pcs=[];
+  raw.split(',').forEach(part=>{
+    part=part.trim();
+    const range=part.match(/^(\d{4})[-–](\d{4})$/);
+    if(range){
+      const start=parseInt(range[1]),end=parseInt(range[2]);
+      for(let i=start;i<=Math.min(end,start+99);i++)pcs.push({pc:i,region:`Postcode ${i}`,state:stateFromPostcode(i)});
+    } else if(/^\d{4}$/.test(part)){
+      pcs.push({pc:parseInt(part),region:`Postcode ${part}`,state:stateFromPostcode(part)});
+    }
+  });
+  return pcs;
+}
+
 function getSelectedRegions(){
-  return [...document.querySelectorAll('.region-chip.active')].map(el=>({
-    pc:parseInt(el.dataset.pc),
-    region:el.dataset.region,
-    state:el.dataset.state
+  const fromChips=[...document.querySelectorAll('.region-chip.active')].map(el=>({
+    pc:parseInt(el.dataset.pc),region:el.dataset.region,state:el.dataset.state
   }));
+  const fromManual=parseManualPostcodes();
+  // Merge, dedupe by pc
+  const seen=new Set(fromChips.map(r=>r.pc));
+  const merged=[...fromChips];
+  fromManual.forEach(r=>{if(!seen.has(r.pc)){seen.add(r.pc);merged.push(r);}});
+  return merged;
 }
 
 function updateCostEst(){
