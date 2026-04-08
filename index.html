@@ -171,45 +171,282 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
     </div>
   </div>
 
-  <!-- Region chips -->
+  <!-- Smart Sweep — the easy mode -->
+  <div style="padding:14px 16px;background:rgba(181,240,160,.04);border:1px solid rgba(181,240,160,.2);border-radius:6px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px">⚡ Smart Sweep — Just get me leads</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:flex-end">
+      <div class="field-wrap">
+        <label>State</label>
+        <select id="sweepState">
+          <option value="QLD">QLD — Queensland</option>
+          <option value="NSW">NSW — New South Wales</option>
+          <option value="VIC">VIC — Victoria</option>
+          <option value="WA">WA — Western Australia</option>
+          <option value="SA">SA — South Australia</option>
+          <option value="TAS">TAS — Tasmania</option>
+          <option value="NT">NT — Northern Territory</option>
+          <option value="ACT">ACT — Canberra</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <label>Category</label>
+        <select id="sweepCategory">
+          <option value="Air Conditioning">Air Conditioning</option>
+          <option value="Electricians">Electricians</option>
+          <option value="Plumbers">Plumbers</option>
+          <option value="Painters">Painters</option>
+          <option value="Builders">Builders</option>
+          <option value="Handyman">Handyman</option>
+          <option value="Roof Repairs">Roof Repairs</option>
+          <option value="Solar Power">Solar Power</option>
+          <option value="Pool Maintenance">Pool Maintenance</option>
+          <option value="Pest Inspections">Pest Inspections</option>
+          <option value="Cleaning Services">Cleaning Services</option>
+          <option value="Landscaper Gardener">Landscaper Gardener</option>
+          <option value="Gas Fitters">Gas Fitters</option>
+          <option value="Hot Water Systems">Hot Water Systems</option>
+          <option value="Tilers">Tilers</option>
+          <option value="Carpenters">Carpenters</option>
+          <option value="Concreters">Concreters</option>
+          <option value="Fences">Fences</option>
+          <option value="Insulation">Insulation</option>
+          <option value="Locksmiths">Locksmiths</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <label>Target (leads with phone)</label>
+        <select id="sweepTarget">
+          <option value="100">100 leads</option>
+          <option value="200">200 leads</option>
+          <option value="500">500 leads</option>
+          <option value="1000">1000 leads</option>
+          <option value="9999">All available</option>
+        </select>
+      </div>
+      <button class="btn" id="sweepBtn" onclick="toggleSweep()" style="height:38px">Sweep ›</button>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--muted)" id="sweepStatus">Works through all regions in the state automatically. Skips already-scraped. Stops at target.</div>
+  </div>
+
+  <div style="font-size:10px;color:var(--muted);margin-bottom:8px;padding:6px 0;border-bottom:1px solid var(--border)">Or use manual region/postcode selection below ↓</div>
   <div style="margin-bottom:10px">
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">
-      Select Regions &nbsp;<span style="text-transform:none;letter-spacing:0;color:var(--muted);font-size:10px">· Each region = one Hipages search · up to 110 unique businesses · ✓ = already scraped for this category</span>
+      Select Regions &nbsp;<span style="text-transform:none;letter-spacing:0;font-size:10px">· Each = one Hipages search · ~110 unique businesses · ✓ = already scraped for this category · geographically distinct pools</span>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">QLD</div>
-      <div class="region-chip" data-pc="4000" data-region="Brisbane Metro" data-state="QLD" onclick="toggleRegion(this)">Brisbane Metro</div>
-      <div class="region-chip" data-pc="4215" data-region="Gold Coast" data-state="QLD" onclick="toggleRegion(this)">Gold Coast</div>
-      <div class="region-chip" data-pc="4558" data-region="Sunshine Coast" data-state="QLD" onclick="toggleRegion(this)">Sunshine Coast</div>
-      <div class="region-chip" data-pc="4500" data-region="Caboolture / North Lakes" data-state="QLD" onclick="toggleRegion(this)">Caboolture / North Lakes</div>
-      <div class="region-chip" data-pc="4300" data-region="Ipswich" data-state="QLD" onclick="toggleRegion(this)">Ipswich</div>
-      <div class="region-chip" data-pc="4350" data-region="Toowoomba" data-state="QLD" onclick="toggleRegion(this)">Toowoomba</div>
-      <div class="region-chip" data-pc="4810" data-region="Townsville" data-state="QLD" onclick="toggleRegion(this)">Townsville</div>
-      <div class="region-chip" data-pc="4868" data-region="Cairns" data-state="QLD" onclick="toggleRegion(this)">Cairns</div>
-      <div class="region-chip" data-pc="4740" data-region="Mackay" data-state="QLD" onclick="toggleRegion(this)">Mackay</div>
-      <div class="region-chip" data-pc="4670" data-region="Bundaberg" data-state="QLD" onclick="toggleRegion(this)">Bundaberg</div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="font-size:10px;color:var(--muted);align-self:center">Select all:</span>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('QLD')">QLD</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('NSW')">NSW</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('VIC')">VIC</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('WA')">WA</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('SA')">SA</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('TAS')">TAS</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('NT')">NT</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px" onclick="selectStateRegions('ACT')">ACT</button>
+      <button class="btn-ghost" style="padding:3px 8px;font-size:11px;color:var(--danger);border-color:var(--danger)" onclick="deselectAllRegions()">Clear all</button>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">WA</div>
-      <div class="region-chip" data-pc="6000" data-region="Perth Metro" data-state="WA" onclick="toggleRegion(this)">Perth Metro</div>
-      <div class="region-chip" data-pc="6065" data-region="Perth North" data-state="WA" onclick="toggleRegion(this)">Perth North (Wanneroo)</div>
-      <div class="region-chip" data-pc="6155" data-region="Perth South" data-state="WA" onclick="toggleRegion(this)">Perth South</div>
-      <div class="region-chip" data-pc="6230" data-region="Bunbury" data-state="WA" onclick="toggleRegion(this)">Bunbury</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="4000" data-region="Brisbane CBD" data-state="QLD" onclick="toggleRegion(this)">Brisbane CBD</div>
+        <div class="region-chip" data-pc="4060" data-region="Brisbane Inner West" data-state="QLD" onclick="toggleRegion(this)">Brisbane Inner West</div>
+        <div class="region-chip" data-pc="4068" data-region="Brisbane West (Toowong)" data-state="QLD" onclick="toggleRegion(this)">Toowong</div>
+        <div class="region-chip" data-pc="4030" data-region="Brisbane North (Lutwyche)" data-state="QLD" onclick="toggleRegion(this)">Brisbane North</div>
+        <div class="region-chip" data-pc="4034" data-region="Brisbane NW (Aspley)" data-state="QLD" onclick="toggleRegion(this)">Aspley</div>
+        <div class="region-chip" data-pc="4053" data-region="Brisbane NW (Mitchelton)" data-state="QLD" onclick="toggleRegion(this)">Mitchelton</div>
+        <div class="region-chip" data-pc="4105" data-region="Brisbane South (Moorooka)" data-state="QLD" onclick="toggleRegion(this)">Moorooka</div>
+        <div class="region-chip" data-pc="4113" data-region="Brisbane SE (Runcorn)" data-state="QLD" onclick="toggleRegion(this)">Runcorn</div>
+        <div class="region-chip" data-pc="4122" data-region="Brisbane SE (Mansfield)" data-state="QLD" onclick="toggleRegion(this)">Mansfield</div>
+        <div class="region-chip" data-pc="4152" data-region="Brisbane East (Carina)" data-state="QLD" onclick="toggleRegion(this)">Carina</div>
+        <div class="region-chip" data-pc="4169" data-region="Brisbane East (Woolloongabba)" data-state="QLD" onclick="toggleRegion(this)">East Brisbane</div>
+        <div class="region-chip" data-pc="4178" data-region="Brisbane Bayside (Wynnum)" data-state="QLD" onclick="toggleRegion(this)">Wynnum</div>
+        <div class="region-chip" data-pc="4215" data-region="Gold Coast CBD" data-state="QLD" onclick="toggleRegion(this)">Gold Coast CBD</div>
+        <div class="region-chip" data-pc="4217" data-region="Gold Coast North (Surfers)" data-state="QLD" onclick="toggleRegion(this)">Surfers Paradise</div>
+        <div class="region-chip" data-pc="4220" data-region="Gold Coast South (Burleigh)" data-state="QLD" onclick="toggleRegion(this)">Burleigh Heads</div>
+        <div class="region-chip" data-pc="4226" data-region="Gold Coast Hinterland" data-state="QLD" onclick="toggleRegion(this)">Robina / Mudgeeraba</div>
+        <div class="region-chip" data-pc="4209" data-region="Gold Coast North (Coomera)" data-state="QLD" onclick="toggleRegion(this)">Coomera</div>
+        <div class="region-chip" data-pc="4558" data-region="Sunshine Coast (Nambour)" data-state="QLD" onclick="toggleRegion(this)">Nambour</div>
+        <div class="region-chip" data-pc="4551" data-region="Sunshine Coast (Caloundra)" data-state="QLD" onclick="toggleRegion(this)">Caloundra</div>
+        <div class="region-chip" data-pc="4556" data-region="Sunshine Coast (Maroochydore)" data-state="QLD" onclick="toggleRegion(this)">Maroochydore</div>
+        <div class="region-chip" data-pc="4560" data-region="Sunshine Coast (Noosa)" data-state="QLD" onclick="toggleRegion(this)">Noosa</div>
+        <div class="region-chip" data-pc="4500" data-region="North Brisbane (Strathpine)" data-state="QLD" onclick="toggleRegion(this)">Strathpine</div>
+        <div class="region-chip" data-pc="4508" data-region="North Brisbane (Narangba)" data-state="QLD" onclick="toggleRegion(this)">Narangba</div>
+        <div class="region-chip" data-pc="4510" data-region="Caboolture" data-state="QLD" onclick="toggleRegion(this)">Caboolture</div>
+        <div class="region-chip" data-pc="4520" data-region="North Brisbane (Samford)" data-state="QLD" onclick="toggleRegion(this)">Samford / D'Aguilar</div>
+        <div class="region-chip" data-pc="4300" data-region="Ipswich (Springfield)" data-state="QLD" onclick="toggleRegion(this)">Springfield</div>
+        <div class="region-chip" data-pc="4305" data-region="Ipswich CBD" data-state="QLD" onclick="toggleRegion(this)">Ipswich CBD</div>
+        <div class="region-chip" data-pc="4350" data-region="Toowoomba" data-state="QLD" onclick="toggleRegion(this)">Toowoomba</div>
+        <div class="region-chip" data-pc="4370" data-region="Warwick" data-state="QLD" onclick="toggleRegion(this)">Warwick</div>
+        <div class="region-chip" data-pc="4380" data-region="Stanthorpe" data-state="QLD" onclick="toggleRegion(this)">Stanthorpe</div>
+        <div class="region-chip" data-pc="4655" data-region="Hervey Bay" data-state="QLD" onclick="toggleRegion(this)">Hervey Bay</div>
+        <div class="region-chip" data-pc="4670" data-region="Bundaberg" data-state="QLD" onclick="toggleRegion(this)">Bundaberg</div>
+        <div class="region-chip" data-pc="4680" data-region="Gladstone" data-state="QLD" onclick="toggleRegion(this)">Gladstone</div>
+        <div class="region-chip" data-pc="4700" data-region="Rockhampton" data-state="QLD" onclick="toggleRegion(this)">Rockhampton</div>
+        <div class="region-chip" data-pc="4740" data-region="Mackay" data-state="QLD" onclick="toggleRegion(this)">Mackay</div>
+        <div class="region-chip" data-pc="4810" data-region="Townsville" data-state="QLD" onclick="toggleRegion(this)">Townsville</div>
+        <div class="region-chip" data-pc="4825" data-region="Mt Isa" data-state="QLD" onclick="toggleRegion(this)">Mt Isa</div>
+        <div class="region-chip" data-pc="4868" data-region="Cairns" data-state="QLD" onclick="toggleRegion(this)">Cairns</div>
+        <div class="region-chip" data-pc="4880" data-region="Atherton Tablelands" data-state="QLD" onclick="toggleRegion(this)">Atherton</div>
+        <div class="region-chip" data-pc="4860" data-region="Innisfail" data-state="QLD" onclick="toggleRegion(this)">Innisfail</div>
+      </div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">NSW</div>
-      <div class="region-chip" data-pc="2000" data-region="Sydney Metro" data-state="NSW" onclick="toggleRegion(this)">Sydney Metro</div>
-      <div class="region-chip" data-pc="2150" data-region="Sydney West" data-state="NSW" onclick="toggleRegion(this)">Sydney West</div>
-      <div class="region-chip" data-pc="2300" data-region="Newcastle" data-state="NSW" onclick="toggleRegion(this)">Newcastle</div>
-      <div class="region-chip" data-pc="2500" data-region="Wollongong" data-state="NSW" onclick="toggleRegion(this)">Wollongong</div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">NSW — New South Wales</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="2000" data-region="Sydney CBD" data-state="NSW" onclick="toggleRegion(this)">Sydney CBD</div>
+        <div class="region-chip" data-pc="2060" data-region="Sydney North Shore" data-state="NSW" onclick="toggleRegion(this)">North Shore</div>
+        <div class="region-chip" data-pc="2070" data-region="Sydney Upper North Shore" data-state="NSW" onclick="toggleRegion(this)">Upper North Shore</div>
+        <div class="region-chip" data-pc="2100" data-region="Sydney Northern Beaches" data-state="NSW" onclick="toggleRegion(this)">Northern Beaches</div>
+        <div class="region-chip" data-pc="2150" data-region="Sydney West (Parramatta)" data-state="NSW" onclick="toggleRegion(this)">Parramatta</div>
+        <div class="region-chip" data-pc="2170" data-region="Sydney SW (Liverpool)" data-state="NSW" onclick="toggleRegion(this)">Liverpool</div>
+        <div class="region-chip" data-pc="2190" data-region="Sydney Inner SW (Marrickville)" data-state="NSW" onclick="toggleRegion(this)">Marrickville</div>
+        <div class="region-chip" data-pc="2200" data-region="Sydney South (Rockdale)" data-state="NSW" onclick="toggleRegion(this)">Rockdale</div>
+        <div class="region-chip" data-pc="2220" data-region="Sydney South (Hurstville)" data-state="NSW" onclick="toggleRegion(this)">Hurstville</div>
+        <div class="region-chip" data-pc="2250" data-region="Central Coast (Gosford)" data-state="NSW" onclick="toggleRegion(this)">Gosford</div>
+        <div class="region-chip" data-pc="2260" data-region="Central Coast (Wyong)" data-state="NSW" onclick="toggleRegion(this)">Wyong</div>
+        <div class="region-chip" data-pc="2300" data-region="Newcastle" data-state="NSW" onclick="toggleRegion(this)">Newcastle</div>
+        <div class="region-chip" data-pc="2320" data-region="Maitland / Hunter Valley" data-state="NSW" onclick="toggleRegion(this)">Maitland</div>
+        <div class="region-chip" data-pc="2325" data-region="Cessnock / Hunter" data-state="NSW" onclick="toggleRegion(this)">Cessnock</div>
+        <div class="region-chip" data-pc="2340" data-region="Tamworth" data-state="NSW" onclick="toggleRegion(this)">Tamworth</div>
+        <div class="region-chip" data-pc="2350" data-region="Armidale" data-state="NSW" onclick="toggleRegion(this)">Armidale</div>
+        <div class="region-chip" data-pc="2380" data-region="Narrabri" data-state="NSW" onclick="toggleRegion(this)">Narrabri</div>
+        <div class="region-chip" data-pc="2444" data-region="Port Macquarie" data-state="NSW" onclick="toggleRegion(this)">Port Macquarie</div>
+        <div class="region-chip" data-pc="2450" data-region="Coffs Harbour" data-state="NSW" onclick="toggleRegion(this)">Coffs Harbour</div>
+        <div class="region-chip" data-pc="2480" data-region="Lismore / Northern Rivers" data-state="NSW" onclick="toggleRegion(this)">Lismore</div>
+        <div class="region-chip" data-pc="2483" data-region="Byron Bay" data-state="NSW" onclick="toggleRegion(this)">Byron Bay</div>
+        <div class="region-chip" data-pc="2500" data-region="Wollongong" data-state="NSW" onclick="toggleRegion(this)">Wollongong</div>
+        <div class="region-chip" data-pc="2530" data-region="Shellharbour / Illawarra" data-state="NSW" onclick="toggleRegion(this)">Shellharbour</div>
+        <div class="region-chip" data-pc="2540" data-region="Nowra / Shoalhaven" data-state="NSW" onclick="toggleRegion(this)">Nowra</div>
+        <div class="region-chip" data-pc="2580" data-region="Goulburn" data-state="NSW" onclick="toggleRegion(this)">Goulburn</div>
+        <div class="region-chip" data-pc="2640" data-region="Albury" data-state="NSW" onclick="toggleRegion(this)">Albury</div>
+        <div class="region-chip" data-pc="2650" data-region="Wagga Wagga" data-state="NSW" onclick="toggleRegion(this)">Wagga Wagga</div>
+        <div class="region-chip" data-pc="2680" data-region="Griffith" data-state="NSW" onclick="toggleRegion(this)">Griffith</div>
+        <div class="region-chip" data-pc="2800" data-region="Orange" data-state="NSW" onclick="toggleRegion(this)">Orange</div>
+        <div class="region-chip" data-pc="2820" data-region="Dubbo" data-state="NSW" onclick="toggleRegion(this)">Dubbo</div>
+        <div class="region-chip" data-pc="2830" data-region="Narromine / Central West" data-state="NSW" onclick="toggleRegion(this)">Narromine</div>
+        <div class="region-chip" data-pc="2870" data-region="Parkes / Forbes" data-state="NSW" onclick="toggleRegion(this)">Parkes</div>
+      </div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-      <div style="font-size:10px;color:var(--muted);width:100%;margin-bottom:2px">VIC / SA / Other</div>
-      <div class="region-chip" data-pc="3000" data-region="Melbourne Metro" data-state="VIC" onclick="toggleRegion(this)">Melbourne Metro</div>
-      <div class="region-chip" data-pc="3220" data-region="Geelong" data-state="VIC" onclick="toggleRegion(this)">Geelong</div>
-      <div class="region-chip" data-pc="5000" data-region="Adelaide" data-state="SA" onclick="toggleRegion(this)">Adelaide</div>
-      <div class="region-chip" data-pc="7000" data-region="Hobart" data-state="TAS" onclick="toggleRegion(this)">Hobart</div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">VIC — Victoria</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="3000" data-region="Melbourne CBD" data-state="VIC" onclick="toggleRegion(this)">Melbourne CBD</div>
+        <div class="region-chip" data-pc="3040" data-region="Melbourne NW (Essendon)" data-state="VIC" onclick="toggleRegion(this)">Essendon</div>
+        <div class="region-chip" data-pc="3058" data-region="Melbourne North (Coburg)" data-state="VIC" onclick="toggleRegion(this)">Coburg</div>
+        <div class="region-chip" data-pc="3070" data-region="Melbourne NE (Northcote)" data-state="VIC" onclick="toggleRegion(this)">Northcote</div>
+        <div class="region-chip" data-pc="3084" data-region="Melbourne NE (Heidelberg)" data-state="VIC" onclick="toggleRegion(this)">Heidelberg</div>
+        <div class="region-chip" data-pc="3102" data-region="Melbourne East (Kew)" data-state="VIC" onclick="toggleRegion(this)">Kew</div>
+        <div class="region-chip" data-pc="3130" data-region="Melbourne East (Ringwood)" data-state="VIC" onclick="toggleRegion(this)">Ringwood</div>
+        <div class="region-chip" data-pc="3150" data-region="Melbourne SE (Oakleigh)" data-state="VIC" onclick="toggleRegion(this)">Oakleigh</div>
+        <div class="region-chip" data-pc="3168" data-region="Melbourne SE (Notting Hill)" data-state="VIC" onclick="toggleRegion(this)">Clayton</div>
+        <div class="region-chip" data-pc="3175" data-region="Melbourne SE (Dandenong)" data-state="VIC" onclick="toggleRegion(this)">Dandenong</div>
+        <div class="region-chip" data-pc="3195" data-region="Melbourne South (Frankston)" data-state="VIC" onclick="toggleRegion(this)">Frankston</div>
+        <div class="region-chip" data-pc="3199" data-region="Mornington Peninsula" data-state="VIC" onclick="toggleRegion(this)">Mornington Peninsula</div>
+        <div class="region-chip" data-pc="3207" data-region="Melbourne South (Port Melbourne)" data-state="VIC" onclick="toggleRegion(this)">Port Melbourne</div>
+        <div class="region-chip" data-pc="3220" data-region="Geelong" data-state="VIC" onclick="toggleRegion(this)">Geelong</div>
+        <div class="region-chip" data-pc="3240" data-region="Colac / Surf Coast" data-state="VIC" onclick="toggleRegion(this)">Colac</div>
+        <div class="region-chip" data-pc="3280" data-region="Warrnambool" data-state="VIC" onclick="toggleRegion(this)">Warrnambool</div>
+        <div class="region-chip" data-pc="3350" data-region="Ballarat" data-state="VIC" onclick="toggleRegion(this)">Ballarat</div>
+        <div class="region-chip" data-pc="3360" data-region="Ararat / Grampians" data-state="VIC" onclick="toggleRegion(this)">Ararat</div>
+        <div class="region-chip" data-pc="3550" data-region="Bendigo" data-state="VIC" onclick="toggleRegion(this)">Bendigo</div>
+        <div class="region-chip" data-pc="3630" data-region="Shepparton" data-state="VIC" onclick="toggleRegion(this)">Shepparton</div>
+        <div class="region-chip" data-pc="3690" data-region="Wodonga / Albury VIC" data-state="VIC" onclick="toggleRegion(this)">Wodonga</div>
+        <div class="region-chip" data-pc="3750" data-region="Melbourne NE (South Morang)" data-state="VIC" onclick="toggleRegion(this)">South Morang</div>
+        <div class="region-chip" data-pc="3752" data-region="Melbourne NE (Whittlesea)" data-state="VIC" onclick="toggleRegion(this)">Whittlesea</div>
+        <div class="region-chip" data-pc="3800" data-region="Melbourne SE (Berwick)" data-state="VIC" onclick="toggleRegion(this)">Berwick</div>
+        <div class="region-chip" data-pc="3840" data-region="Traralgon / Latrobe Valley" data-state="VIC" onclick="toggleRegion(this)">Traralgon</div>
+        <div class="region-chip" data-pc="3875" data-region="Bairnsdale / East Gippsland" data-state="VIC" onclick="toggleRegion(this)">Bairnsdale</div>
+        <div class="region-chip" data-pc="3977" data-region="Melbourne SE (Cranbourne)" data-state="VIC" onclick="toggleRegion(this)">Cranbourne</div>
+      </div>
     </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">WA — Western Australia</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="6000" data-region="Perth CBD" data-state="WA" onclick="toggleRegion(this)">Perth CBD</div>
+        <div class="region-chip" data-pc="6020" data-region="Perth North (Hillarys)" data-state="WA" onclick="toggleRegion(this)">Hillarys</div>
+        <div class="region-chip" data-pc="6050" data-region="Perth North (Inglewood)" data-state="WA" onclick="toggleRegion(this)">Inglewood</div>
+        <div class="region-chip" data-pc="6065" data-region="Perth NE (Wanneroo)" data-state="WA" onclick="toggleRegion(this)">Wanneroo</div>
+        <div class="region-chip" data-pc="6090" data-region="Perth NE (Midland)" data-state="WA" onclick="toggleRegion(this)">Midland</div>
+        <div class="region-chip" data-pc="6100" data-region="Perth East (Belmont)" data-state="WA" onclick="toggleRegion(this)">Belmont</div>
+        <div class="region-chip" data-pc="6107" data-region="Perth SE (Cannington)" data-state="WA" onclick="toggleRegion(this)">Cannington</div>
+        <div class="region-chip" data-pc="6147" data-region="Perth South (Lynwood)" data-state="WA" onclick="toggleRegion(this)">Lynwood</div>
+        <div class="region-chip" data-pc="6155" data-region="Perth SW (Murdoch)" data-state="WA" onclick="toggleRegion(this)">Murdoch</div>
+        <div class="region-chip" data-pc="6160" data-region="Perth SW (Fremantle)" data-state="WA" onclick="toggleRegion(this)">Fremantle</div>
+        <div class="region-chip" data-pc="6163" data-region="Perth South (Cockburn)" data-state="WA" onclick="toggleRegion(this)">Cockburn</div>
+        <div class="region-chip" data-pc="6164" data-region="Perth South (Jandakot)" data-state="WA" onclick="toggleRegion(this)">Jandakot</div>
+        <div class="region-chip" data-pc="6167" data-region="Perth South (Rockingham)" data-state="WA" onclick="toggleRegion(this)">Rockingham</div>
+        <div class="region-chip" data-pc="6210" data-region="Mandurah" data-state="WA" onclick="toggleRegion(this)">Mandurah</div>
+        <div class="region-chip" data-pc="6230" data-region="Bunbury" data-state="WA" onclick="toggleRegion(this)">Bunbury</div>
+        <div class="region-chip" data-pc="6280" data-region="Busselton / Margaret River" data-state="WA" onclick="toggleRegion(this)">Busselton</div>
+        <div class="region-chip" data-pc="6330" data-region="Albany" data-state="WA" onclick="toggleRegion(this)">Albany</div>
+        <div class="region-chip" data-pc="6430" data-region="Kalgoorlie" data-state="WA" onclick="toggleRegion(this)">Kalgoorlie</div>
+        <div class="region-chip" data-pc="6530" data-region="Geraldton" data-state="WA" onclick="toggleRegion(this)">Geraldton</div>
+        <div class="region-chip" data-pc="6714" data-region="Karratha" data-state="WA" onclick="toggleRegion(this)">Karratha</div>
+        <div class="region-chip" data-pc="6720" data-region="Port Hedland" data-state="WA" onclick="toggleRegion(this)">Port Hedland</div>
+        <div class="region-chip" data-pc="6725" data-region="Broome" data-state="WA" onclick="toggleRegion(this)">Broome</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">SA — South Australia</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="5000" data-region="Adelaide CBD" data-state="SA" onclick="toggleRegion(this)">Adelaide CBD</div>
+        <div class="region-chip" data-pc="5031" data-region="Adelaide West (Hindmarsh)" data-state="SA" onclick="toggleRegion(this)">Hindmarsh</div>
+        <div class="region-chip" data-pc="5040" data-region="Adelaide South (Glenelg)" data-state="SA" onclick="toggleRegion(this)">Glenelg</div>
+        <div class="region-chip" data-pc="5061" data-region="Adelaide SE (Unley)" data-state="SA" onclick="toggleRegion(this)">Unley</div>
+        <div class="region-chip" data-pc="5082" data-region="Adelaide North (Prospect)" data-state="SA" onclick="toggleRegion(this)">Prospect</div>
+        <div class="region-chip" data-pc="5095" data-region="Adelaide NE (Tea Tree Gully)" data-state="SA" onclick="toggleRegion(this)">Tea Tree Gully</div>
+        <div class="region-chip" data-pc="5108" data-region="Adelaide North (Salisbury)" data-state="SA" onclick="toggleRegion(this)">Salisbury</div>
+        <div class="region-chip" data-pc="5118" data-region="Adelaide North (Gawler)" data-state="SA" onclick="toggleRegion(this)">Gawler</div>
+        <div class="region-chip" data-pc="5160" data-region="Adelaide South (Noarlunga)" data-state="SA" onclick="toggleRegion(this)">Noarlunga</div>
+        <div class="region-chip" data-pc="5170" data-region="Adelaide South (Morphett Vale)" data-state="SA" onclick="toggleRegion(this)">Morphett Vale</div>
+        <div class="region-chip" data-pc="5250" data-region="Adelaide Hills (Mount Barker)" data-state="SA" onclick="toggleRegion(this)">Mount Barker</div>
+        <div class="region-chip" data-pc="5290" data-region="Victor Harbor" data-state="SA" onclick="toggleRegion(this)">Victor Harbor</div>
+        <div class="region-chip" data-pc="5330" data-region="Renmark / Riverland" data-state="SA" onclick="toggleRegion(this)">Renmark</div>
+        <div class="region-chip" data-pc="5540" data-region="Port Augusta" data-state="SA" onclick="toggleRegion(this)">Port Augusta</div>
+        <div class="region-chip" data-pc="5600" data-region="Whyalla" data-state="SA" onclick="toggleRegion(this)">Whyalla</div>
+        <div class="region-chip" data-pc="5700" data-region="Port Pirie" data-state="SA" onclick="toggleRegion(this)">Port Pirie</div>
+        <div class="region-chip" data-pc="5373" data-region="Clare Valley" data-state="SA" onclick="toggleRegion(this)">Clare</div>
+        <div class="region-chip" data-pc="5352" data-region="Barossa Valley" data-state="SA" onclick="toggleRegion(this)">Barossa</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">TAS — Tasmania</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="7000" data-region="Hobart" data-state="TAS" onclick="toggleRegion(this)">Hobart</div>
+        <div class="region-chip" data-pc="7010" data-region="Hobart North (Glenorchy)" data-state="TAS" onclick="toggleRegion(this)">Glenorchy</div>
+        <div class="region-chip" data-pc="7050" data-region="Hobart South (Kingston)" data-state="TAS" onclick="toggleRegion(this)">Kingston</div>
+        <div class="region-chip" data-pc="7155" data-region="Huonville / Huon Valley" data-state="TAS" onclick="toggleRegion(this)">Huonville</div>
+        <div class="region-chip" data-pc="7170" data-region="Sorell / SE Tasmania" data-state="TAS" onclick="toggleRegion(this)">Sorell</div>
+        <div class="region-chip" data-pc="7248" data-region="Launceston" data-state="TAS" onclick="toggleRegion(this)">Launceston</div>
+        <div class="region-chip" data-pc="7310" data-region="Devonport" data-state="TAS" onclick="toggleRegion(this)">Devonport</div>
+        <div class="region-chip" data-pc="7320" data-region="Burnie / Northwest" data-state="TAS" onclick="toggleRegion(this)">Burnie</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">NT — Northern Territory</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="800" data-region="Darwin" data-state="NT" onclick="toggleRegion(this)">Darwin</div>
+        <div class="region-chip" data-pc="810" data-region="Darwin Suburbs (Casuarina)" data-state="NT" onclick="toggleRegion(this)">Casuarina</div>
+        <div class="region-chip" data-pc="820" data-region="Darwin South (Palmerston)" data-state="NT" onclick="toggleRegion(this)">Palmerston</div>
+        <div class="region-chip" data-pc="870" data-region="Alice Springs" data-state="NT" onclick="toggleRegion(this)">Alice Springs</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--accent);margin-bottom:6px;padding:3px 0;border-bottom:1px solid var(--border)">ACT — Australian Capital Territory</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <div class="region-chip" data-pc="2600" data-region="Canberra CBD" data-state="ACT" onclick="toggleRegion(this)">Canberra CBD</div>
+        <div class="region-chip" data-pc="2615" data-region="Canberra North (Belconnen)" data-state="ACT" onclick="toggleRegion(this)">Belconnen</div>
+        <div class="region-chip" data-pc="2620" data-region="Canberra South (Tuggeranong)" data-state="ACT" onclick="toggleRegion(this)">Tuggeranong</div>
+        <div class="region-chip" data-pc="2617" data-region="Canberra NW (Gungahlin)" data-state="ACT" onclick="toggleRegion(this)">Gungahlin</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Manual postcode input -->
@@ -232,6 +469,12 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
     <button class="btn" id="runBtn" onclick="toggleRun()">Scrape Hipages ›</button>
     <button class="btn-ghost" id="getNames" onclick="getOwnerNames()" disabled>Get Owner Names</button>
     <button class="btn-ghost" id="exportBtn" onclick="exportCSV()" disabled>Export CSV → Zoho</button>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:8px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
+      <span style="font-size:11px;color:var(--muted)">Stop at</span>
+      <input type="number" id="targetCount" value="150" min="0" max="2000" style="width:60px;padding:4px 6px;font-size:12px"/>
+      <span style="font-size:11px;color:var(--muted)">mobiles</span>
+      <span style="font-size:11px;color:var(--muted);margin-left:4px">(0 = no limit)</span>
+    </div>
     <div style="margin-left:auto;font-size:11px;color:var(--muted)">Names: ~$0.013/business · optional</div>
   </div>
 
@@ -380,6 +623,18 @@ function switchTab(name){
 }
 
 // ─── Region chips ──────────────────────────────────────────────────────────────
+function selectStateRegions(state){
+  document.querySelectorAll(`.region-chip[data-state="${state}"]`).forEach(el=>{
+    if(!el.classList.contains('done'))el.classList.add('active');
+  });
+  updateCostEst();
+}
+
+function deselectAllRegions(){
+  document.querySelectorAll('.region-chip.active').forEach(el=>el.classList.remove('active'));
+  updateCostEst();
+}
+
 function toggleRegion(el){
   if(el.classList.contains('done'))return; // already scraped — block re-run
   el.classList.toggle('active');
@@ -563,7 +818,220 @@ function extractPersonFromBusinessName(name){
   return null;
 }
 
-// ─── Main run ─────────────────────────────────────────────────────────────────
+// ─── Smart Sweep — state postcode lists ───────────────────────────────────────
+const STATE_REGIONS={
+  QLD:[
+    {pc:4000,region:'Brisbane CBD'},{pc:4060,region:'Brisbane Inner West'},
+    {pc:4068,region:'Toowong'},{pc:4030,region:'Brisbane North'},
+    {pc:4034,region:'Aspley'},{pc:4053,region:'Mitchelton'},
+    {pc:4105,region:'Moorooka'},{pc:4113,region:'Runcorn'},
+    {pc:4122,region:'Mansfield'},{pc:4152,region:'Carina'},
+    {pc:4169,region:'East Brisbane'},{pc:4178,region:'Wynnum'},
+    {pc:4215,region:'Gold Coast CBD'},{pc:4217,region:'Surfers Paradise'},
+    {pc:4220,region:'Burleigh Heads'},{pc:4226,region:'Robina'},
+    {pc:4209,region:'Coomera'},{pc:4558,region:'Nambour'},
+    {pc:4551,region:'Caloundra'},{pc:4556,region:'Maroochydore'},
+    {pc:4560,region:'Noosa'},{pc:4500,region:'Strathpine'},
+    {pc:4508,region:'Narangba'},{pc:4510,region:'Caboolture'},
+    {pc:4520,region:'Samford'},{pc:4300,region:'Springfield'},
+    {pc:4305,region:'Ipswich CBD'},{pc:4350,region:'Toowoomba'},
+    {pc:4370,region:'Warwick'},{pc:4655,region:'Hervey Bay'},
+    {pc:4670,region:'Bundaberg'},{pc:4680,region:'Gladstone'},
+    {pc:4700,region:'Rockhampton'},{pc:4740,region:'Mackay'},
+    {pc:4810,region:'Townsville'},{pc:4825,region:'Mt Isa'},
+    {pc:4868,region:'Cairns'},{pc:4880,region:'Atherton'},
+    {pc:4860,region:'Innisfail'}
+  ],
+  NSW:[
+    {pc:2000,region:'Sydney CBD'},{pc:2060,region:'North Shore'},
+    {pc:2070,region:'Upper North Shore'},{pc:2100,region:'Northern Beaches'},
+    {pc:2150,region:'Parramatta'},{pc:2170,region:'Liverpool'},
+    {pc:2190,region:'Marrickville'},{pc:2200,region:'Rockdale'},
+    {pc:2220,region:'Hurstville'},{pc:2250,region:'Gosford'},
+    {pc:2260,region:'Wyong'},{pc:2300,region:'Newcastle'},
+    {pc:2320,region:'Maitland'},{pc:2325,region:'Cessnock'},
+    {pc:2340,region:'Tamworth'},{pc:2350,region:'Armidale'},
+    {pc:2444,region:'Port Macquarie'},{pc:2450,region:'Coffs Harbour'},
+    {pc:2480,region:'Lismore'},{pc:2483,region:'Byron Bay'},
+    {pc:2500,region:'Wollongong'},{pc:2530,region:'Shellharbour'},
+    {pc:2540,region:'Nowra'},{pc:2640,region:'Albury'},
+    {pc:2650,region:'Wagga Wagga'},{pc:2800,region:'Orange'},
+    {pc:2820,region:'Dubbo'},{pc:2870,region:'Parkes'}
+  ],
+  VIC:[
+    {pc:3000,region:'Melbourne CBD'},{pc:3040,region:'Essendon'},
+    {pc:3058,region:'Coburg'},{pc:3070,region:'Northcote'},
+    {pc:3084,region:'Heidelberg'},{pc:3102,region:'Kew'},
+    {pc:3130,region:'Ringwood'},{pc:3150,region:'Oakleigh'},
+    {pc:3168,region:'Clayton'},{pc:3175,region:'Dandenong'},
+    {pc:3195,region:'Frankston'},{pc:3199,region:'Mornington Peninsula'},
+    {pc:3207,region:'Port Melbourne'},{pc:3220,region:'Geelong'},
+    {pc:3240,region:'Colac'},{pc:3280,region:'Warrnambool'},
+    {pc:3350,region:'Ballarat'},{pc:3550,region:'Bendigo'},
+    {pc:3630,region:'Shepparton'},{pc:3690,region:'Wodonga'},
+    {pc:3750,region:'South Morang'},{pc:3752,region:'Whittlesea'},
+    {pc:3800,region:'Berwick'},{pc:3840,region:'Traralgon'},
+    {pc:3875,region:'Bairnsdale'},{pc:3977,region:'Cranbourne'}
+  ],
+  WA:[
+    {pc:6000,region:'Perth CBD'},{pc:6020,region:'Hillarys'},
+    {pc:6050,region:'Inglewood'},{pc:6065,region:'Wanneroo'},
+    {pc:6090,region:'Midland'},{pc:6100,region:'Belmont'},
+    {pc:6107,region:'Cannington'},{pc:6147,region:'Lynwood'},
+    {pc:6155,region:'Murdoch'},{pc:6160,region:'Fremantle'},
+    {pc:6163,region:'Cockburn'},{pc:6167,region:'Rockingham'},
+    {pc:6210,region:'Mandurah'},{pc:6230,region:'Bunbury'},
+    {pc:6280,region:'Busselton'},{pc:6330,region:'Albany'},
+    {pc:6430,region:'Kalgoorlie'},{pc:6530,region:'Geraldton'},
+    {pc:6714,region:'Karratha'},{pc:6720,region:'Port Hedland'},
+    {pc:6725,region:'Broome'}
+  ],
+  SA:[
+    {pc:5000,region:'Adelaide CBD'},{pc:5031,region:'Hindmarsh'},
+    {pc:5040,region:'Glenelg'},{pc:5061,region:'Unley'},
+    {pc:5082,region:'Prospect'},{pc:5095,region:'Tea Tree Gully'},
+    {pc:5108,region:'Salisbury'},{pc:5118,region:'Gawler'},
+    {pc:5160,region:'Noarlunga'},{pc:5170,region:'Morphett Vale'},
+    {pc:5250,region:'Mount Barker'},{pc:5290,region:'Victor Harbor'},
+    {pc:5540,region:'Port Augusta'},{pc:5600,region:'Whyalla'},
+    {pc:5700,region:'Port Pirie'},{pc:5352,region:'Barossa'}
+  ],
+  TAS:[
+    {pc:7000,region:'Hobart'},{pc:7010,region:'Glenorchy'},
+    {pc:7050,region:'Kingston'},{pc:7248,region:'Launceston'},
+    {pc:7310,region:'Devonport'},{pc:7320,region:'Burnie'}
+  ],
+  NT:[
+    {pc:800,region:'Darwin'},{pc:810,region:'Casuarina'},
+    {pc:820,region:'Palmerston'},{pc:870,region:'Alice Springs'}
+  ],
+  ACT:[
+    {pc:2600,region:'Canberra CBD'},{pc:2615,region:'Belconnen'},
+    {pc:2617,region:'Gungahlin'},{pc:2620,region:'Tuggeranong'}
+  ]
+};
+
+let sweepRunning=false;
+
+function toggleSweep(){
+  if(sweepRunning){stopRequested=true;document.getElementById('sweepBtn').textContent='Stopping...';}
+  else runSweep();
+}
+
+async function runSweep(){
+  const apifyKey=localStorage.getItem('tp_apify')||document.getElementById('apifyKey').value.trim();
+  const state=document.getElementById('sweepState').value;
+  const category=document.getElementById('sweepCategory').value;
+  const target=parseInt(document.getElementById('sweepTarget').value);
+
+  if(!apifyKey){setStatus('Add Apify token in Settings first.','error');return;}
+
+  const regions=STATE_REGIONS[state]||[];
+  if(regions.length===0){setStatus(`No regions defined for ${state}.`,'error');return;}
+
+  // Filter out already-scraped regions for this category
+  const toRun=regions.filter(r=>!doneRegions[`${r.region}|${category}`]);
+  const alreadyDone=regions.length-toRun.length;
+
+  if(toRun.length===0){
+    setStatus(`All ${state} regions already scraped for ${category}. Nothing new to run.`,'done');
+    return;
+  }
+
+  sweepRunning=true;stopRequested=false;
+  leads=[];dupeCount=0;clearProgress();renderTable();updateStats();
+
+  const btn=document.getElementById('sweepBtn');
+  btn.textContent='Stop ✕';btn.classList.add('btn-stop');
+  document.getElementById('sweepStatus').textContent=`Running... ${alreadyDone} regions already done, ${toRun.length} to sweep.`;
+
+  // Load existing mobiles
+  let existingMobiles=new Set();
+  try{
+    const rows=await sbFetch(`trades_leads?mobile=not.is.null&select=mobile&limit=10000`);
+    existingMobiles=new Set((rows||[]).map(r=>(r.mobile||'').replace(/\s/g,'')));
+    const leadsRows=await sbFetch(`leads?mobile=not.is.null&select=mobile&limit=5000`);
+    (leadsRows||[]).forEach(r=>existingMobiles.add((r.mobile||'').replace(/\s/g,'')));
+    addProgress(`Loaded ${existingMobiles.size} existing mobiles for dedup`,'done');
+  }catch{}
+
+  let totalWithPhone=0;
+
+  for(let i=0;i<toRun.length;i++){
+    if(stopRequested)break;
+    if(totalWithPhone>=target){
+      addProgress(`Target of ${target} leads reached — stopping.`,'done');
+      break;
+    }
+
+    const {pc,region}=toRun[i];
+    document.getElementById('queueBar').classList.add('visible');
+    document.getElementById('queueLabel').textContent=`${state} · ${category} · ${region} (${i+1}/${toRun.length})`;
+    document.getElementById('queueCount').textContent=`${totalWithPhone} / ${target} leads`;
+    document.getElementById('queueFill').style.width=`${Math.round(totalWithPhone/target*100)}%`;
+
+    document.getElementById('sweepStatus').textContent=`${totalWithPhone}/${target} leads · Sweeping ${region}...`;
+
+    const prog=addProgress(`${region} (${pc})...`,'active');
+    try{
+      const items=await runApifyActor(apifyKey,ACTOR_ID,{category,postcode:pc,sortBy:'Total Hired'});
+      let added=0,dupes=0;
+      const runId=crypto.randomUUID();
+      const runLeads=[];
+
+      for(const item of items){
+        const mobile=validateMobile(item.mobile||item.phone||'');
+        const phone=item.phone||item.mobile||'';
+        const cleanPhone=mobile||phone;
+        if(mobile&&existingMobiles.has(mobile.replace(/\s/g,''))){dupes++;dupeCount++;continue;}
+        if(mobile)existingMobiles.add(mobile.replace(/\s/g,''));
+        const lead={
+          id:Date.now()+Math.random(),selected:true,
+          company:item.name||'',contact:cleanName(item.ownerName||''),
+          phone:cleanPhone,isMobile:!!mobile,
+          suburb:item.serviceArea||item.suburb||'',
+          state,postcode:pc,region,
+          rating:item.starRating?.rating||null,
+          hires:item.starRating?.totalHired||null,
+          profileUrl:item.profilePageFullUrl||null,
+          hasAbn:item.hasValidAbn||false,
+          category
+        };
+        leads.push(lead);runLeads.push(lead);
+        if(mobile)totalWithPhone++;
+        added++;
+        if(totalWithPhone>=target)break;
+      }
+
+      const mobileCount=runLeads.filter(l=>l.isMobile).length;
+      await saveRun(runId,region,pc,category,state,added,mobileCount);
+      await saveLeads(runId,runLeads);
+      doneRegions[`${region}|${category}`]=new Date().toISOString();
+      updateRegionStatus();
+
+      prog.className='prog-item done';
+      prog.querySelector('span:last-child').textContent=`${region}: +${added} businesses · ${mobileCount} mobiles · ${dupes} dupes · Total: ${totalWithPhone}/${target}`;
+    }catch(e){
+      prog.className='prog-item err';
+      prog.querySelector('span:last-child').textContent=`${region}: Error — ${e.message.slice(0,50)}`;
+    }
+    renderTable();updateStats();
+    if(i<toRun.length-1&&!stopRequested&&totalWithPhone<target)await new Promise(r=>setTimeout(r,2000));
+  }
+
+  document.getElementById('queueBar').classList.remove('visible');
+  sweepRunning=false;stopRequested=false;
+  btn.textContent='Sweep ›';btn.classList.remove('btn-stop');
+  const withPhone=leads.filter(l=>l.isMobile).length;
+  document.getElementById('sweepStatus').textContent=`Done — ${leads.length} businesses · ${withPhone} with mobile · ${dupeCount} dupes skipped`;
+  setStatus(`Sweep complete — ${withPhone} mobile numbers for ${category} in ${state}`,'done');
+  document.getElementById('exportBtn').disabled=false;
+  document.getElementById('getNames').disabled=leads.length===0;
+  // Sync category/state filter dropdowns for export
+  document.getElementById('stateFilter').value=state;
+  document.getElementById('category').value=category;
+  updateStats();
+}
 function toggleRun(){
   if(isRunning){stopRequested=true;document.getElementById('runBtn').textContent='Stopping...';document.getElementById('runBtn').classList.remove('btn-stop');}
   else runScrape();
@@ -572,22 +1040,33 @@ function toggleRun(){
 async function runScrape(){
   const apifyKey=localStorage.getItem('tp_apify')||document.getElementById('apifyKey').value.trim();
   const category=document.getElementById('category').value;
-  const regions=getSelectedRegions();
+  const target=parseInt(document.getElementById('targetCount').value)||0;
+
+  // Get all selected regions — auto-skip any that are already done
+  const allRegions=getSelectedRegions();
+  const regions=allRegions.filter(r=>{
+    const key=`${r.region}|${category}`;
+    if(doneRegions[key]){
+      addProgress(`⚡ ${r.region} — already scraped, skipping`,'skip');
+      return false;
+    }
+    return true;
+  });
 
   if(!apifyKey){setStatus('Add Apify token in Settings first.','error');return;}
-  if(regions.length===0){setStatus('Select at least one region.','error');return;}
+  if(regions.length===0){setStatus('No new regions to scrape — all selected regions already done for this category.','error');return;}
 
   const btn=document.getElementById('runBtn');
   btn.textContent='Stop ✕';btn.classList.add('btn-stop');
   isRunning=true;stopRequested=false;dupeCount=0;
-  leads=[];clearProgress();renderTable();updateStats();
+  leads=[];renderTable();updateStats();
 
   // Load existing mobiles for dedup
   let existingMobiles=new Set();
+  let currentMobiles=0;
   try{
     const rows=await sbFetch(`trades_leads?mobile=not.is.null&select=mobile&limit=10000`);
     existingMobiles=new Set((rows||[]).map(r=>(r.mobile||'').replace(/\s/g,'')));
-    // Also check leads table
     const leadsRows=await sbFetch(`leads?mobile=not.is.null&select=mobile&limit=5000`);
     (leadsRows||[]).forEach(r=>existingMobiles.add((r.mobile||'').replace(/\s/g,'')));
     addProgress(`Loaded ${existingMobiles.size} existing mobiles for dedup`,'done');
@@ -595,10 +1074,18 @@ async function runScrape(){
 
   for(let i=0;i<regions.length;i++){
     if(stopRequested)break;
+
+    // Check target
+    currentMobiles=leads.filter(l=>l.isMobile).length;
+    if(target>0&&currentMobiles>=target){
+      setStatus(`Target of ${target} mobiles reached — stopping.`,'done');
+      break;
+    }
+
     const {pc,region,state}=regions[i];
 
     document.getElementById('queueBar').classList.add('visible');
-    document.getElementById('queueLabel').textContent=`${region} — ${category} (${i+1}/${regions.length})`;
+    document.getElementById('queueLabel').textContent=`${region} — ${category} (${i+1}/${regions.length})${target>0?' · '+currentMobiles+'/'+target+' mobiles':''}`;
     document.getElementById('queueCount').textContent=`${i+1} / ${regions.length}`;
     document.getElementById('queueFill').style.width=`${Math.round((i+1)/regions.length*100)}%`;
 
@@ -617,33 +1104,32 @@ async function runScrape(){
         if(mobile)existingMobiles.add(mobile.replace(/\s/g,''));
         const lead={
           id:Date.now()+Math.random(),selected:true,
-          company:item.name||'',
-          contact:cleanName(item.ownerName||''),
+          company:item.name||'',contact:cleanName(item.ownerName||''),
           phone:cleanPhone,isMobile:!!mobile,
           suburb:item.serviceArea||item.suburb||'',
           state:item.state||state,postcode:pc,region,
-          rating:item.starRating?.rating||null,
-          hires:item.starRating?.totalHired||null,
-          profileUrl:item.profilePageFullUrl||null,
-          hasAbn:item.hasValidAbn||false,
-          category
+          rating:item.starRating?.rating||null,hires:item.starRating?.totalHired||null,
+          profileUrl:item.profilePageFullUrl||null,hasAbn:item.hasValidAbn||false,category
         };
-        leads.push(lead);
-        runLeads.push(lead);
-        added++;
+        leads.push(lead);runLeads.push(lead);added++;
       }
 
-      // Save to Supabase
       const mobileCount=runLeads.filter(l=>l.isMobile).length;
       await saveRun(runId,region,pc,category,state,added,mobileCount);
       await saveLeads(runId,runLeads);
-
-      // Mark region as done
       doneRegions[`${region}|${category}`]=new Date().toISOString();
       updateRegionStatus();
 
       prog.className='prog-item done';
       prog.querySelector('span:last-child').textContent=`${region}: ${added} found · ${mobileCount} mobiles · ${dupes} dupes skipped`;
+
+      // Check target after each region
+      currentMobiles=leads.filter(l=>l.isMobile).length;
+      if(target>0&&currentMobiles>=target){
+        renderTable();updateStats();
+        setStatus(`Target of ${target} mobiles reached after ${region}. Stopping.`,'done');
+        break;
+      }
     }catch(e){
       prog.className='prog-item err';
       prog.querySelector('span:last-child').textContent=`${region}: Error — ${e.message.slice(0,60)}`;
@@ -655,8 +1141,11 @@ async function runScrape(){
   document.getElementById('queueBar').classList.remove('visible');
   isRunning=false;stopRequested=false;
   btn.textContent='Scrape Hipages ›';btn.classList.remove('btn-stop');
-  const withPhone=leads.filter(l=>l.phone).length;
-  setStatus(`Done — ${leads.length} businesses scraped · ${withPhone} with phone · ${dupeCount} dupes skipped · Saved to Supabase`,'done');
+  currentMobiles=leads.filter(l=>l.isMobile).length;
+  const msg=target>0&&currentMobiles>=target
+    ?`✓ Target hit — ${currentMobiles} mobiles from ${leads.length} businesses · Saved to Supabase`
+    :`Done — ${leads.length} businesses · ${currentMobiles} mobiles · ${dupeCount} dupes skipped · Saved to Supabase`;
+  setStatus(msg,'done');
   document.getElementById('exportBtn').disabled=false;
   document.getElementById('getNames').disabled=leads.length===0;
   updateStats();
