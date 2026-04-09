@@ -665,29 +665,39 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
-        // Paginate through all YP results — actor returns ~99 per page
-        // Run pages 1-10 max, stop when page returns 0 results or target hit
+        // YP paginates via URL — each page returns ~100 unique businesses
+        // URL format: /search?search_terms=X&geo_location_terms=STATE&page=N
+        const kwEncoded=encodeURIComponent(kw);
+        const stateEncoded=encodeURIComponent(state);
         let page=1;
         let totalYP=0;
-        while(page<=15&&!stopRequested){
+        let consecutiveEmpty=0;
+        while(page<=60&&!stopRequested){
           if(target>0&&currentMobiles>=target)break;
-          addProg(`YP: "${kw}" in ${state} — page ${page}...`,'');
-          const pageItems=await runApify(apifyKey,YP_ACTOR,{
-            businessType:kw,
-            location:state,
-            resultLimit:100,
-            startingPageNumber:page
-          });
-          if(!pageItems||pageItems.length===0){
-            addProg(`YP: no more results after page ${page-1}`,'done');
-            break;
+          const ypUrl=`https://www.yellowpages.com.au/search?search_terms=${kwEncoded}&geo_location_terms=${stateEncoded}${page>1?`&page=${page}`:''}`;
+          addProg(`YP: page ${page}...`,'');
+          try{
+            const pageItems=await runApify(apifyKey,YP_ACTOR,{
+              searchUrl:ypUrl,
+              resultLimit:100
+            });
+            if(!pageItems||pageItems.length===0){
+              consecutiveEmpty++;
+              addProg(`YP: page ${page} — no results, stopping`,'done');
+              if(consecutiveEmpty>=2)break;
+              page++;continue;
+            }
+            consecutiveEmpty=0;
+            items.push(...pageItems);
+            totalYP+=pageItems.length;
+            addProg(`YP: page ${page} → ${pageItems.length} results (${totalYP} total)`,'done');
+            if(pageItems.length<50){addProg('YP: last page reached','done');break;}
+            page++;
+            await new Promise(r=>setTimeout(r,2000));
+          }catch(e){
+            addProg(`YP: page ${page} error — ${e.message.slice(0,50)}`,'err');
+            page++;await new Promise(r=>setTimeout(r,3000));
           }
-          items.push(...pageItems);
-          totalYP+=pageItems.length;
-          addProg(`YP: page ${page} → ${pageItems.length} results (${totalYP} total so far)`,'done');
-          if(pageItems.length<50)break; // Last page — fewer results means end of data
-          page++;
-          await new Promise(r=>setTimeout(r,3000)); // Polite delay between pages
         }
       } else {
         // Hipages — uses postcode, use state capital postcode
@@ -723,20 +733,33 @@ async function runScrape(toRun,state,target,apifyKey){
           existingCompanies.add(cClean);
         }
 
+        // Fix suburb — extract from full address if needed
+        let cleanSuburb=suburb;
+        if(suburb&&suburb.length>30){
+          // Full address like "6 Castlemaine Street, Kirwan, QLD 4817"
+          // Extract suburb = second-to-last comma-separated part
+          const parts=suburb.split(',').map(p=>p.trim());
+          if(parts.length>=3)cleanSuburb=parts[parts.length-2].replace(/\s+QLD|\s+NSW|\s+VIC|\s+WA|\s+SA|\s+TAS|\s+NT|\s+ACT/i,'').replace(/\s*\d{4}/,'').trim();
+          else cleanSuburb=parts[0];
+        }
+
         // For Hipages — hard block results from wrong state based on suburb
-        // Hipages returns businesses from any state regardless of postcode
         if(source==='HP'&&suburb){
-          const suburbStateMap={
-            // NSW suburbs that commonly appear in HP results
-            'bankstown':'NSW','yagoona':'NSW','liverpool':'NSW','rockdale':'NSW',
-            'parramatta':'NSW','mascot':'NSW','concord west':'NSW','cecilhills':'NSW',
-            'cecil hills':'NSW','revesby':'NSW','hurstville':'NSW','penrith':'NSW',
-            'blacktown':'NSW','sydney':'NSW','melbourne':'VIC','perth':'WA',
-            'adelaide':'SA','hobart':'TAS','darwin':'NT','canberra':'ACT'
-          };
-          const suburbLower=suburb.toLowerCase().trim();
-          const detectedState=suburbStateMap[suburbLower];
-          if(detectedState&&detectedState!==state){dupes++;dupeCount++;continue;}
+          const nswSuburbs=['bankstown','yagoona','liverpool','rockdale','parramatta','mascot',
+            'concord west','cecilhills','cecil hills','revesby','hurstville','penrith',
+            'blacktown','sydney','newcastle','wollongong','gosford','campbelltown',
+            'cronulla','sutherland','manly','chatswood','hornsby'];
+          const vicSuburbs=['melbourne','geelong','ballarat','bendigo','frankston','dandenong',
+            'ringwood','box hill','richmond','st kilda'];
+          const waSuburbs=['perth','fremantle','mandurah','bunbury','joondalup','wanneroo'];
+          const saSuburbs=['adelaide','glenelg','unley','salisbury','elizabeth'];
+          const suburbLower=(suburb||'').toLowerCase().trim();
+          const wrongStateSuburbs={NSW:nswSuburbs,VIC:vicSuburbs,WA:waSuburbs,SA:saSuburbs};
+          let isWrongStateSub=false;
+          for(const[st,subs]of Object.entries(wrongStateSuburbs)){
+            if(st!==state&&subs.some(s=>suburbLower.includes(s))){isWrongStateSub=true;break;}
+          }
+          if(isWrongStateSub){dupes++;dupeCount++;continue;}
         }
 
         // Flag wrong state by area code (warn only — mobile numbers can't be checked this way)
@@ -747,7 +770,7 @@ async function runScrape(toRun,state,target,apifyKey){
           company,phone:phone||null,
           isMobile:isMobile(phone),
           isWrongState:ws,
-          suburb:suburb||item.serviceArea||'',
+          suburb:cleanSuburb||item.serviceArea||'',
           state:item.state||state,
           keyword:kw,source,
           sourceUrl:item.url||item.profilePageFullUrl||item.listing_url||null,
