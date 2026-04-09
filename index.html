@@ -1034,7 +1034,38 @@ async function runSweep(){
 }
 function toggleRun(){
   if(isRunning){stopRequested=true;document.getElementById('runBtn').textContent='Stopping...';document.getElementById('runBtn').classList.remove('btn-stop');}
-  else runScrape();
+  else preflightCheck();
+}
+
+function preflightCheck(){
+  const category=document.getElementById('category').value;
+  const allRegions=getSelectedRegions();
+  const manualPcs=parseManualPostcodes();
+
+  // Filter out already-done regions
+  const freshRegions=allRegions.filter(r=>!doneRegions[`${r.region}|${category}`]);
+  const alreadyDone=allRegions.length-freshRegions.length;
+
+  if(freshRegions.length===0&&manualPcs.length===0){
+    setStatus('All selected regions already scraped for this category. Nothing new to run.','error');
+    return;
+  }
+
+  const totalRuns=freshRegions.length+manualPcs.length;
+  const estimatedResults=totalRuns*110;
+  const estimatedCost=(estimatedResults*2/1000).toFixed(2);
+
+  // Show confirmation
+  const msg=`About to run ${totalRuns} Apify searches:\n\n` +
+    `• ${freshRegions.length} fresh regions\n` +
+    `• ${manualPcs.length} manual postcodes\n` +
+    (alreadyDone>0?`• ${alreadyDone} already-done regions skipped (no charge)\n`:'')+
+    `\nEstimated Apify cost: ~$${estimatedCost} USD\n` +
+    `(${totalRuns} searches × 110 results × $2/1000)\n\n` +
+    `Proceed?`;
+
+  if(!confirm(msg))return;
+  runScrape();
 }
 
 async function runScrape(){
