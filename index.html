@@ -665,40 +665,36 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
-        // YP paginates via URL — each page returns ~100 unique businesses
-        // URL format: /search?search_terms=X&geo_location_terms=STATE&page=N
-        const kwEncoded=encodeURIComponent(kw);
-        const stateEncoded=encodeURIComponent(state);
         let page=1;
-        let totalYP=0;
-        let consecutiveEmpty=0;
-        while(page<=60&&!stopRequested){
-          if(target>0&&currentMobiles>=target)break;
-          const ypUrl=`https://www.yellowpages.com.au/search?search_terms=${kwEncoded}&geo_location_terms=${stateEncoded}${page>1?`&page=${page}`:''}`;
+        while(!stopRequested){
+          if(target>0&&currentMobiles>=target){addProg(`Target of ${target} mobiles reached.`,'done');break;}
           addProg(`YP: page ${page}...`,'');
-          try{
-            const pageItems=await runApify(apifyKey,YP_ACTOR,{
-              searchUrl:ypUrl,
-              resultLimit:100
-            });
-            if(!pageItems||pageItems.length===0){
-              consecutiveEmpty++;
-              addProg(`YP: page ${page} — no results, stopping`,'done');
-              if(consecutiveEmpty>=2)break;
-              page++;continue;
-            }
-            consecutiveEmpty=0;
-            items.push(...pageItems);
-            totalYP+=pageItems.length;
-            addProg(`YP: page ${page} → ${pageItems.length} results (${totalYP} total)`,'done');
-            if(pageItems.length<50){addProg('YP: last page reached','done');break;}
-            page++;
-            await new Promise(r=>setTimeout(r,2000));
-          }catch(e){
-            addProg(`YP: page ${page} error — ${e.message.slice(0,50)}`,'err');
-            page++;await new Promise(r=>setTimeout(r,3000));
+          const pageItems=await runApify(apifyKey,YP_ACTOR,{businessType:kw,location:state,startingPageNumber:page});
+          if(!pageItems||pageItems.length===0){addProg(`YP: no more results after page ${page-1}`,'done');break;}
+          addProg(`YP: page ${page} → ${pageItems.length} results`,'done');
+          for(const item of pageItems){
+            const rawPhone=item.phone||item.phoneNumber||item.mobile||(item.phones&&item.phones[0])||item.telephone||'';
+            const phone=validatePhone(rawPhone);
+            const company=(item.name||item.businessName||item.title||'').trim();
+            if(!company)continue;
+            if(phone){const pClean=phone.replace(/\s/g,'');if(existingPhones.has(pClean)){dupeCount++;continue;}existingPhones.add(pClean);}
+            else{const cClean=company.toLowerCase().trim();if(existingCompanies.has(cClean)){dupeCount++;continue;}existingCompanies.add(cClean);}
+            let suburb=item.suburb||item.city||item.location||item.area||(typeof item.address==='string'?item.address:'')||'';
+            if(suburb.length>30){const parts=suburb.split(',').map(p=>p.trim());suburb=parts.length>=3?parts[parts.length-2].replace(/\s*\d{4}/,'').trim():parts[0];}
+            const lead={id:Date.now()+Math.random(),selected:true,company,phone:phone||null,isMobile:isMobile(phone),isWrongState:phone?isWrongState(phone,state):false,suburb,state:item.state||state,keyword:kw,source,sourceUrl:item.url||null};
+            leads.push(lead);
+            if(isMobile(phone))currentMobiles++;
           }
+          renderTable();updateStats();
+          document.getElementById('queueCount').textContent=`${currentMobiles} mobiles${target>0?' / '+target:''}`;
+          page++;
+          await new Promise(r=>setTimeout(r,2000));
         }
+        await saveRun(kw,state,'YP',leads.filter(l=>l.source==='YP').length,leads.filter(l=>l.source==='YP'&&l.isMobile).length,leads.filter(l=>l.source==='YP'&&l.phone&&!l.isMobile).length);
+        await saveLeads(leads.filter(l=>l.source==='YP'));
+        prog.className='prog-item done';
+        prog.querySelector('span:last-child').textContent=`[YP] done — ${leads.filter(l=>l.source==='YP').length} businesses · ${leads.filter(l=>l.source==='YP'&&l.isMobile).length} mobiles · ${dupeCount} dupes`;
+        items=[];
       } else {
         // Hipages — search by region postcodes to cover entire state
         // Each region returns different local tradies with direct mobiles
