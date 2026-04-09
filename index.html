@@ -665,12 +665,30 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
-        addProg(`YP: searching "${kw}" in ${state}...`,'');
-        items=await runApify(apifyKey,YP_ACTOR,{
-          businessType:kw,
-          location:state,
-          resultLimit:2000
-        });
+        // Paginate through all YP results — actor returns ~99 per page
+        // Run pages 1-10 max, stop when page returns 0 results or target hit
+        let page=1;
+        let totalYP=0;
+        while(page<=15&&!stopRequested){
+          if(target>0&&currentMobiles>=target)break;
+          addProg(`YP: "${kw}" in ${state} — page ${page}...`,'');
+          const pageItems=await runApify(apifyKey,YP_ACTOR,{
+            businessType:kw,
+            location:state,
+            resultLimit:100,
+            startingPageNumber:page
+          });
+          if(!pageItems||pageItems.length===0){
+            addProg(`YP: no more results after page ${page-1}`,'done');
+            break;
+          }
+          items.push(...pageItems);
+          totalYP+=pageItems.length;
+          addProg(`YP: page ${page} → ${pageItems.length} results (${totalYP} total so far)`,'done');
+          if(pageItems.length<50)break; // Last page — fewer results means end of data
+          page++;
+          await new Promise(r=>setTimeout(r,3000)); // Polite delay between pages
+        }
       } else {
         // Hipages — uses postcode, use state capital postcode
         const statePc={QLD:4000,NSW:2000,VIC:3000,WA:6000,SA:5000,TAS:7000,NT:800,ACT:2600};
@@ -680,12 +698,15 @@ async function runScrape(toRun,state,target,apifyKey){
       let added=0,dupes=0,wrongState=0;
       const runLeads=[];
 
+      if(items.length>0)console.log('First item fields:',Object.keys(items[0]),items[0]);
       for(const item of items){
-        // Extract phone from various field names
         const rawPhone=item.phone||item.phoneNumber||item.mobile||item.contact_phone||
-          (item.phones&&item.phones[0])||'';
+          (item.phones&&item.phones[0])||item.telephone||'';
         const phone=validatePhone(rawPhone);
         const company=(item.name||item.businessName||item.title||item.business_name||'').trim();
+        const suburb=item.suburb||item.city||item.location||item.area||
+          item.address?.suburb||item.address?.city||
+          (typeof item.address==='string'?item.address:'')||'';
 
         // Skip if no company name
         if(!company)continue;
@@ -702,7 +723,23 @@ async function runScrape(toRun,state,target,apifyKey){
           existingCompanies.add(cClean);
         }
 
-        // Flag wrong state (don't block — just warn)
+        // For Hipages — hard block results from wrong state based on suburb
+        // Hipages returns businesses from any state regardless of postcode
+        if(source==='HP'&&suburb){
+          const suburbStateMap={
+            // NSW suburbs that commonly appear in HP results
+            'bankstown':'NSW','yagoona':'NSW','liverpool':'NSW','rockdale':'NSW',
+            'parramatta':'NSW','mascot':'NSW','concord west':'NSW','cecilhills':'NSW',
+            'cecil hills':'NSW','revesby':'NSW','hurstville':'NSW','penrith':'NSW',
+            'blacktown':'NSW','sydney':'NSW','melbourne':'VIC','perth':'WA',
+            'adelaide':'SA','hobart':'TAS','darwin':'NT','canberra':'ACT'
+          };
+          const suburbLower=suburb.toLowerCase().trim();
+          const detectedState=suburbStateMap[suburbLower];
+          if(detectedState&&detectedState!==state){dupes++;dupeCount++;continue;}
+        }
+
+        // Flag wrong state by area code (warn only — mobile numbers can't be checked this way)
         const ws=phone?isWrongState(phone,state):false;
 
         const lead={
@@ -710,7 +747,7 @@ async function runScrape(toRun,state,target,apifyKey){
           company,phone:phone||null,
           isMobile:isMobile(phone),
           isWrongState:ws,
-          suburb:item.suburb||item.serviceArea||item.city||item.location||'',
+          suburb:suburb||item.serviceArea||'',
           state:item.state||state,
           keyword:kw,source,
           sourceUrl:item.url||item.profilePageFullUrl||item.listing_url||null,
