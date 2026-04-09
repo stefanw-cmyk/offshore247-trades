@@ -665,11 +665,17 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
+        // searchUrl with &page=N is the ONLY working pagination method for this actor
+        // Confirmed: businessType+startingPageNumber does NOT paginate (returns same results)
+        // Confirmed: searchUrl&page=2 returns genuinely different businesses
+        const kwEncoded=encodeURIComponent(kw);
+        const stateEncoded=encodeURIComponent(state);
         let page=1;
         while(!stopRequested){
           if(target>0&&currentMobiles>=target){addProg(`Target of ${target} mobiles reached.`,'done');break;}
+          const url=`https://www.yellowpages.com.au/search?search_terms=${kwEncoded}&geo_location_terms=${stateEncoded}${page>1?`&page=${page}`:''}`;
           addProg(`YP: page ${page}...`,'');
-          const pageItems=await runApify(apifyKey,YP_ACTOR,{businessType:kw,location:state,startingPageNumber:page});
+          const pageItems=await runApify(apifyKey,YP_ACTOR,{searchUrl:url});
           if(!pageItems||pageItems.length===0){addProg(`YP: no more results after page ${page-1}`,'done');break;}
           addProg(`YP: page ${page} → ${pageItems.length} results`,'done');
           for(const item of pageItems){
@@ -681,7 +687,7 @@ async function runScrape(toRun,state,target,apifyKey){
             else{const cClean=company.toLowerCase().trim();if(existingCompanies.has(cClean)){dupeCount++;continue;}existingCompanies.add(cClean);}
             let suburb=item.suburb||item.city||item.location||item.area||(typeof item.address==='string'?item.address:'')||'';
             if(suburb.length>30){const parts=suburb.split(',').map(p=>p.trim());suburb=parts.length>=3?parts[parts.length-2].replace(/\s*\d{4}/,'').trim():parts[0];}
-            const lead={id:Date.now()+Math.random(),selected:true,company,phone:phone||null,isMobile:isMobile(phone),isWrongState:phone?isWrongState(phone,state):false,suburb,state:item.state||state,keyword:kw,source,sourceUrl:item.url||null};
+            const lead={id:Date.now()+Math.random(),selected:true,company,phone:phone||null,isMobile:isMobile(phone),isWrongState:phone?isWrongState(phone,state):false,suburb,state:item.state||state,keyword:kw,source,sourceUrl:item.detailsPageUrl||item.url||null};
             leads.push(lead);
             if(isMobile(phone))currentMobiles++;
           }
@@ -693,7 +699,7 @@ async function runScrape(toRun,state,target,apifyKey){
         await saveRun(kw,state,'YP',leads.filter(l=>l.source==='YP').length,leads.filter(l=>l.source==='YP'&&l.isMobile).length,leads.filter(l=>l.source==='YP'&&l.phone&&!l.isMobile).length);
         await saveLeads(leads.filter(l=>l.source==='YP'));
         prog.className='prog-item done';
-        prog.querySelector('span:last-child').textContent=`[YP] done — ${leads.filter(l=>l.source==='YP').length} businesses · ${leads.filter(l=>l.source==='YP'&&l.isMobile).length} mobiles · ${dupeCount} dupes`;
+        prog.querySelector('span:last-child').textContent=`[YP] "${kw}" → ${leads.filter(l=>l.source==='YP').length} businesses · ${leads.filter(l=>l.source==='YP'&&l.isMobile).length} mobiles · ${dupeCount} dupes`;
         items=[];
       } else {
         // Hipages — search by region postcodes to cover entire state
