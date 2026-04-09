@@ -700,9 +700,32 @@ async function runScrape(toRun,state,target,apifyKey){
           }
         }
       } else {
-        // Hipages — uses postcode, use state capital postcode
-        const statePc={QLD:4000,NSW:2000,VIC:3000,WA:6000,SA:5000,TAS:7000,NT:800,ACT:2600};
-        items=await runApify(apifyKey,HP_ACTOR,{category:kw,postcode:statePc[state]||4000,sortBy:'Total Hired'});
+        // Hipages — search by region postcodes to cover entire state
+        // Each region returns different local tradies with direct mobiles
+        const stateRegionPcs={
+          QLD:[4000,4215,4551,4810,4868,4670,4700,4740,4350,4305,4508,4655,4680,4825,4380,4183,4157],
+          NSW:[2000,2300,2500,2640,2650,2800,2444,2480,2340,2250,2530,2170],
+          VIC:[3000,3220,3350,3550,3630,3500,3280,3820,3750,3930],
+          WA:[6000,6230,6330,6430,6530,6714,6725,6740,6105,6210],
+          SA:[5000,5290,5600,5700,5540,5330,5211],
+          TAS:[7000,7250,7310,7320],
+          NT:[800,870],
+          ACT:[2600,2617,2620]
+        };
+        const postcodes=stateRegionPcs[state]||[4000];
+        for(const pc of postcodes){
+          if(stopRequested)break;
+          if(target>0&&currentMobiles>=target)break;
+          addProg(`HP: "${kw}" postcode ${pc}...`,'');
+          try{
+            const pcItems=await runApify(apifyKey,HP_ACTOR,{category:kw,postcode:pc,sortBy:'Total Hired'});
+            if(pcItems&&pcItems.length>0){
+              items.push(...pcItems);
+              addProg(`HP: ${pc} → ${pcItems.length} results`,'done');
+            }
+          }catch(e){addProg(`HP: ${pc} failed — ${e.message.slice(0,40)}`,'err');}
+          await new Promise(r=>setTimeout(r,2000));
+        }
       }
 
       let added=0,dupes=0,wrongState=0;
