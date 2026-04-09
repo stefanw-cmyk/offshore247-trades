@@ -304,7 +304,7 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SB_URL='https://ojifhwprkapdqsfsufrl.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qaWZod3Bya2FwZHFzZnN1ZnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI0MjcsImV4cCI6MjA4OTI2ODQyN30.f8UZw7qCoOFG6MosRU3FCCyihphFfGh_-HzF7B5l_T4';
-const YP_ACTOR='jupri~yellowpages-au';
+const YP_ACTOR='abotapi~yellow-pages-au-scraper';
 const HP_ACTOR='websift~hipages-lead-extractor';
 
 // ─── Keyword groups ───────────────────────────────────────────────────────────
@@ -665,15 +665,11 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
-        const stateMap={QLD:'qld',NSW:'nsw',VIC:'vic',WA:'wa',SA:'sa',TAS:'tas',NT:'nt',ACT:'act'};
-        const stateSlug=stateMap[state]||'qld';
-        const kwSlug=kw.toLowerCase().replace(/\s+/g,'-').replace(/\//g,'-');
-        const ypUrl=`https://www.yellowpages.com.au/find/${kwSlug}/${stateSlug}`;
-        addProg(`YP URL: ${ypUrl}`,'');
+        addProg(`YP: searching "${kw}" in ${state}...`,'');
         items=await runApify(apifyKey,YP_ACTOR,{
-          startUrls:[{url:ypUrl}],
-          maxItems:2000,
-          proxyConfig:{useApifyProxy:true}
+          businessType:kw,
+          location:state,
+          resultLimit:2000
         });
       } else {
         // Hipages — uses postcode, use state capital postcode
