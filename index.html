@@ -304,7 +304,7 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SB_URL='https://ojifhwprkapdqsfsufrl.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qaWZod3Bya2FwZHFzZnN1ZnJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTI0MjcsImV4cCI6MjA4OTI2ODQyN30.f8UZw7qCoOFG6MosRU3FCCyihphFfGh_-HzF7B5l_T4';
-const YP_ACTOR='delicious_zebu~yellowpages-australia-lead-generator';
+const YP_ACTOR='jupri~yellowpages-au';
 const HP_ACTOR='websift~hipages-lead-extractor';
 
 // ─── Keyword groups ───────────────────────────────────────────────────────────
@@ -574,7 +574,6 @@ function preflightAndRun(){
   const state=document.getElementById('stateSelect').value;
   if(keywords.length===0){setStatus('No keywords selected.','error');return;}
 
-  // Build run list — skip already done
   const toRun=[];
   if(activeSources.YP){
     keywords.forEach(kw=>{
@@ -584,29 +583,48 @@ function preflightAndRun(){
   if(activeSources.HP){
     const group=document.getElementById('kwGroup').value;
     const hpCat=KW_GROUPS[group]?.hipagesCategory;
-    if(hpCat){
-      if(!doneKeys[`${hpCat}|${state}|HP`])toRun.push({kw:hpCat,source:'HP'});
-    }
+    if(hpCat&&!doneKeys[`${hpCat}|${state}|HP`])toRun.push({kw:hpCat,source:'HP'});
   }
 
   const alreadyDone=(activeSources.YP?keywords.length:0)+(activeSources.HP?1:0)-toRun.length;
   const target=parseInt(document.getElementById('targetMobiles').value)||0;
-  const estCost=toRun.filter(r=>r.source==='YP').length*0.01+toRun.filter(r=>r.source==='HP').length*0.22;
+  const estCost=(toRun.filter(r=>r.source==='YP').length*0.01+toRun.filter(r=>r.source==='HP').length*0.22).toFixed(2);
 
   if(toRun.length===0){
-    setStatus('All sources already scraped for these keywords in this state. Nothing new to run.','done');
+    setStatus('All sources already scraped for these keywords in this state.','done');
     return;
   }
 
-  const msg=`Ready to run:\n\n`+
-    toRun.map(r=>`• ${r.source}: "${r.kw}" in ${state}`).join('\n')+
-    (alreadyDone>0?`\n• ${alreadyDone} already done — skipped`:'') +
-    `\n\nEstimated cost: ~$${estCost.toFixed(2)} USD`+
-    (target>0?`\nTarget: ${target} mobiles`:'') +
-    `\n\nProceed?`;
+  // Show in-page confirmation instead of confirm()
+  const banner=document.getElementById('warnBanner');
+  banner.className='warn-banner visible';
+  banner.style.background='rgba(181,240,160,.06)';
+  banner.style.borderColor='rgba(181,240,160,.2)';
+  banner.style.color='var(--accent)';
+  banner.innerHTML=`
+    <div style="font-weight:600;margin-bottom:6px">Ready to run ${toRun.length} search${toRun.length>1?'es':''}:</div>
+    <div style="font-size:11px;margin-bottom:8px">${toRun.map(r=>`${r.source}: "${r.kw}" in ${state}`).join(' · ')}${alreadyDone>0?' · '+alreadyDone+' already done (skipped)':''}</div>
+    <div style="font-size:11px;margin-bottom:10px">Estimated cost: <strong>~$${estCost} USD</strong>${target>0?' · Target: '+target+' mobiles':''}</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="padding:6px 16px;font-size:12px" onclick="confirmRun()">✓ Confirm & Run</button>
+      <button class="btn-ghost" style="padding:6px 12px;font-size:12px" onclick="cancelPreflight()">Cancel</button>
+    </div>`;
 
-  if(!confirm(msg))return;
+  // Store run config for when confirmed
+  window._pendingRun={toRun,state,target,apifyKey};
+}
+
+function confirmRun(){
+  document.getElementById('warnBanner').className='warn-banner';
+  if(!window._pendingRun)return;
+  const {toRun,state,target,apifyKey}=window._pendingRun;
+  window._pendingRun=null;
   runScrape(toRun,state,target,apifyKey);
+}
+
+function cancelPreflight(){
+  document.getElementById('warnBanner').className='warn-banner';
+  window._pendingRun=null;
 }
 
 async function runScrape(toRun,state,target,apifyKey){
@@ -647,7 +665,16 @@ async function runScrape(toRun,state,target,apifyKey){
     try{
       let items=[];
       if(source==='YP'){
-        items=await runApify(apifyKey,YP_ACTOR,{keyword:kw,location:state,maxResults:2000});
+        const stateMap={QLD:'qld',NSW:'nsw',VIC:'vic',WA:'wa',SA:'sa',TAS:'tas',NT:'nt',ACT:'act'};
+        const stateSlug=stateMap[state]||'qld';
+        const kwSlug=kw.toLowerCase().replace(/\s+/g,'-').replace(/\//g,'-');
+        const ypUrl=`https://www.yellowpages.com.au/find/${kwSlug}/${stateSlug}`;
+        addProg(`YP URL: ${ypUrl}`,'');
+        items=await runApify(apifyKey,YP_ACTOR,{
+          startUrls:[{url:ypUrl}],
+          maxItems:2000,
+          proxyConfig:{useApifyProxy:true}
+        });
       } else {
         // Hipages — uses postcode, use state capital postcode
         const statePc={QLD:4000,NSW:2000,VIC:3000,WA:6000,SA:5000,TAS:7000,NT:800,ACT:2600};
@@ -820,9 +847,8 @@ async function enrichSelected(){
   if(!apiKey){alert('Add Anthropic key in Settings first.');return;}
   const toEnrich=leads.filter(l=>l.selected&&!l.isMobile&&l.company);
   if(toEnrich.length===0){setStatus('No selected leads need enrichment.','');return;}
-  if(!confirm(`Enrich ${toEnrich.length} leads for mobile numbers?\n\nEstimated cost: ~$${(toEnrich.length*0.013).toFixed(2)} USD (Claude, max 2 searches each)\n\nThis fires only for selected non-mobile leads.`))return;
-
   document.getElementById('enrichBtn').disabled=true;
+  setStatus(`Enriching ${toEnrich.length} leads for mobile numbers (~$${(toEnrich.length*0.013).toFixed(2)} est.)...`,'active');
   for(let i=0;i<toEnrich.length;i++){
     if(stopRequested)break;
     const lead=toEnrich[i];
