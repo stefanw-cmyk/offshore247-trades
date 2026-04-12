@@ -503,13 +503,19 @@ async function saveLeads(leadsArr){
   if(!leadsArr.length)return;
   try{
     const rows=leadsArr.map(l=>({
-      company:l.company,phone:l.phone||null,mobile:l.isMobile?l.phone:null,
-      suburb:l.suburb||null,state:l.state||null,
-      keyword:l.keyword,source:l.source,
-      source_url:l.sourceUrl||null
+      company:l.company||null,
+      phone:l.phone||null,
+      mobile:l.isMobile?l.phone:null,
+      suburb:l.suburb||null,
+      state:l.state||null,
+      category:l.keyword||null,
+      profile_url:l.sourceUrl||null,
+      keyword:l.keyword||null,
+      source:l.source||null
     }));
     await sbFetch('trades_leads',{method:'POST',prefer:'return=minimal',body:JSON.stringify(rows)});
-  }catch(e){console.warn('saveLeads failed:',e.message);}
+    console.log(`Saved ${rows.length} leads to Supabase`);
+  }catch(e){console.error('saveLeads FAILED:',e.message);}
 }
 
 // ─── Apify ────────────────────────────────────────────────────────────────────
