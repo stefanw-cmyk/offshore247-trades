@@ -111,6 +111,7 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
       <label>Industry / Keyword Group <span id="modeChip" style="font-size:10px;padding:2px 7px;border-radius:3px;background:rgba(181,240,160,.15);color:var(--accent);border:1px solid rgba(181,240,160,.25);margin-left:6px">📱 Mobile mode</span></label>
       <select id="kwGroup" onchange="loadKeywords();updateModeChip()">
         <optgroup label="── TRADES (mobile mode) ──">
+        <option value="realestate">Real Estate Agency</option>
         <option value="aircon">Air Conditioning / HVAC / Refrigeration</option>
         <option value="electrical">Electrical / Electricians</option>
         <option value="plumbing">Plumbing / Gas</option>
@@ -181,6 +182,46 @@ input[type=checkbox]{accent-color:var(--accent);cursor:pointer}
       <label>Stop at (mobiles found, 0=no limit)</label>
       <input type="number" id="targetMobiles" value="100" min="0" max="5000"/>
     </div>
+  </div>
+
+  <!-- Stop when / Timeout / Campaign row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="field-wrap">
+      <label>Stop when I have</label>
+      <select id="stopMode">
+        <option value="none">No limit</option>
+        <option value="total">Total leads</option>
+        <option value="mobile" selected>Confirmed mobiles</option>
+      </select>
+    </div>
+    <div class="field-wrap">
+      <label>Target count (0 = no limit)</label>
+      <input type="number" id="targetMobiles" value="100" min="0" max="10000"/>
+    </div>
+    <div class="field-wrap">
+      <label>Timeout per lead (enrichment)</label>
+      <select id="timeoutSel">
+        <option value="15000">15s — fast/cheap</option>
+        <option value="20000" selected>20s — balanced</option>
+        <option value="30000">30s — thorough</option>
+        <option value="45000">45s — deep</option>
+        <option value="60000">60s — max</option>
+      </select>
+    </div>
+    <div class="field-wrap">
+      <label>Campaign name (export)</label>
+      <input type="text" id="campaignName" placeholder="Auto-generated if blank"/>
+    </div>
+  </div>
+
+  <!-- Export filter row -->
+  <div style="display:flex;align-items:center;gap:16px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;flex-wrap:wrap">
+    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);white-space:nowrap">Export filter:</span>
+    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--muted)"><input type="radio" name="ef" value="none" checked style="accent-color:var(--accent)"> All leads</label>
+    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--muted)"><input type="radio" name="ef" value="mobile" style="accent-color:var(--accent)"> Must have mobile</label>
+    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--muted)"><input type="radio" name="ef" value="named_mobile" style="accent-color:var(--accent)"> Named + mobile</label>
+    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--muted)"><input type="radio" name="ef" value="email" style="accent-color:var(--accent)"> Must have email</label>
+    <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--muted)"><input type="radio" name="ef" value="any_phone" style="accent-color:var(--accent)"> Any phone</label>
   </div>
 
   <!-- Custom keyword -->
@@ -351,7 +392,7 @@ const HP_ACTOR='websift~hipages-lead-extractor';
 // ONE keyword per group where possible — YP categories overlap heavily
 // Multiple only where genuinely distinct business types exist
 // Industries that use mobile mode (trades)
-const TRADES_INDUSTRIES=new Set(['aircon','electrical','plumbing','painting','roofing','building','landscaping','pest','solar','pool','cleaning','security','tiling','fencing','concreting','carpentry','custom']);
+const TRADES_INDUSTRIES=new Set(['aircon','electrical','plumbing','painting','roofing','building','landscaping','pest','solar','pool','cleaning','security','tiling','fencing','concreting','carpentry','realestate','custom']);
 
 // Big firm blocklist — exclude national/global firms
 const BIG_FIRM_BLOCKLIST=['kpmg','deloitte','pwc','pricewaterhousecoopers','ernst & young','ey ','grant thornton','bdo ','rsm ','pitcher partners','moorestephens','moore stephens','hall chadwick','william buck','nexia','crowe','mazars','findex','count financial','anz financial','commonwealth financial','westpac financial','nab financial','amp financial','iag','allianz','qbe','suncorp','medibank','bupa','hcf','nib ','slater and gordon','allens','lander & rogers','minter ellison','ashurst','corrs ','norton rose','clifford chance','baker mckenzie','king & wood','herbert smith','mckinsey','boston consulting','bain ','accenture','ibm global','capgemini','tata consultancy','infosys','wipro','cognizant','dxc technology'];
@@ -413,6 +454,7 @@ const KW_GROUPS={
   propertymanagers:{label:'Property Managers',keywords:['property manager'],hipagesCategory:'',notes:'Landline mode'},
   freightlogistics:{label:'Freight & Logistics',keywords:['freight company'],hipagesCategory:'',notes:'Landline mode'},
   travelagents:{label:'Travel Agents',keywords:['travel agent'],hipagesCategory:'',notes:'Landline mode'},
+  realestate:{label:'Real Estate Agency',keywords:['real estate'],hipagesCategory:'',notes:'Mobile mode — Claude enrichment fires to find principal name + mobile'},
   custom:{label:'Custom',keywords:[],hipagesCategory:'',notes:''}
 };
 
@@ -536,6 +578,9 @@ async function saveLeads(leadsArr){
       company:l.company||null,
       phone:l.phone||null,
       mobile:l.isMobile?l.phone:null,
+      contact:l.contact||null,
+      title:l.title||null,
+      email:l.email||null,
       suburb:l.suburb||null,
       state:l.state||null,
       category:l.keyword||null,
@@ -589,6 +634,91 @@ function isWrongState(p,state){
 }
 
 // ─── Main run ─────────────────────────────────────────────────────────────────
+function targetHit(mobiles,total,target){
+  if(!target||target<=0)return false;
+  const mode=document.getElementById('stopMode').value;
+  if(mode==='mobile')return mobiles>=target;
+  if(mode==='total')return total>=target;
+  return false;
+}
+
+function getTimeoutMs(){return parseInt(document.getElementById('timeoutSel').value)||20000;}
+
+function validateMobile(raw){
+  if(!raw)return null;
+  let p=String(raw).replace(/[\s\-().+]/g,'');
+  if(p.startsWith('+61'))p='0'+p.slice(3);
+  if(p.startsWith('614')&&p.length===11)p='0'+p.slice(2);
+  if(p.length===9&&p.startsWith('4'))p='0'+p;
+  if(!/^04\d{8}$/.test(p))return null;
+  return p;
+}
+
+function cleanContactName(raw){
+  if(!raw||raw==='—'||raw==='null'||raw==='undefined')return null;
+  let name=raw.split(/[&(|+\/]/)[0].trim();
+  name=name.replace(/\b(Founder|Director|Principal|CEO|MD|Owner|Manager|LIC|Partner|Co-Director|Managing|Agent|Sales|Leasing|Property|Real|Estate|Realty|Team|Group|Agency|Office)\b.*$/i,'').trim();
+  name=name.replace(/[,\-:]+$/,'').trim();
+  if(name.length<4||name.length>50)return null;
+  if(!name.includes(' '))return null;
+  const parts=name.split(/\s+/);
+  if(parts.some(w=>w.replace(/[^a-zA-Z]/g,'').length<2))return null;
+  if(/\b(Pty|Ltd|Group|Agency|Real Estate|Property|Realty|Management|Services|Holdings|Partners|Associates|International|National|Australia|Australian|Hooker|McGrath|Jellis|Harcourts|Coast|Central|Eastern|Western|Northern|Southern|Hills|Park|North|South|East|West)\b/i.test(name))return null;
+  if(parts.length>4)return null;
+  return name||null;
+}
+
+async function callClaudeEnrich(apiKey,company,suburb,state,phone,website,timeoutMs){
+  const prompt=`Find the owner/principal/director/founder of this Australian real estate agency and their direct mobile.
+
+Business: ${company}
+${suburb?`Location: ${suburb} ${state}`:''}
+${phone?`Office phone: ${phone}`:''}
+${website?`Website: ${website}`:''}
+
+Steps:
+1. Search Google for "${company} ${suburb||state} principal director owner mobile"
+2. Visit their website team/about/people page
+3. Find the MOST SENIOR person (Owner, Principal, Director, Founder, Licensee in Charge)
+4. Get their direct mobile (04xx) — NOT the office landline
+
+Rules:
+- Return ONE person only — the most senior
+- Name = FIRST NAME LAST NAME only — never return the business name as contact
+- CRITICAL: If you cannot find a real person's name, return null for contact
+- source_url REQUIRED if returning mobile — if no URL, return null for mobile
+- Never guess or fabricate
+
+Return ONLY raw JSON:
+{"contact":"First Last or null","title":"Title or null","mobile":"04xx xxx xxx or null","email":"email or null","source_url":"https://url or null"}`;
+
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',signal:ctrl.signal,
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',max_tokens:300,
+        tools:[{type:'web_search_20250305',name:'web_search',max_uses:3}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    clearTimeout(timer);
+    const data=await resp.json();
+    let text='';for(const b of(data.content||[])){if(b.type==='text')text+=b.text;}
+    const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*?\}/);
+    if(match){
+      const r=JSON.parse(match[0]);
+      const mobile=validateMobile(r.mobile||'');
+      const contact=cleanContactName(r.contact||'');
+      const sourceUrl=r.source_url&&r.source_url.length>5?r.source_url:null;
+      return{contact,title:r.title||null,mobile:mobile&&sourceUrl?mobile:null,email:r.email||null,sourceUrl};
+    }
+  }catch(e){clearTimeout(timer);}
+  return{contact:null,title:null,mobile:null,email:null,sourceUrl:null};
+}
+
 function toggleRun(){
   if(isRunning){stopRequested=true;document.getElementById('runBtn').textContent='Stopping...';return;}
   preflightAndRun();
@@ -623,6 +753,7 @@ function preflightAndRun(){
   }
 
   const alreadyDone=(activeSources.YP?keywords.length:0)+(activeSources.HP?1:0)-toRun.length;
+  const stopMode=document.getElementById('stopMode').value;
   const target=parseInt(document.getElementById('targetMobiles').value)||0;
   const estCost=(toRun.filter(r=>r.source==='YP').length*0.01+toRun.filter(r=>r.source==='HP').length*0.22).toFixed(2);
 
@@ -673,12 +804,14 @@ async function runScrape(toRun,state,target,apifyKey){
   let existingPhones=new Set();
   let existingCompanies=new Set();
   try{
-    const t1=await sbFetch('trades_leads?phone=not.is.null&select=phone&limit=20000');
-    const t2=await sbFetch('leads?mobile=not.is.null&select=mobile&limit=10000');
-    const t3=await sbFetch('trades_leads?company=not.is.null&select=company&limit=20000');
+    const t1=await sbFetch('trades_leads?phone=not.is.null&select=phone&limit=50000');
+    const t2=await sbFetch('leads?mobile=not.is.null&select=mobile&limit=20000');
+    const t3=await sbFetch('trades_leads?company=not.is.null&select=company&limit=50000');
+    const t4=await sbFetch('re_leads?mobile=not.is.null&select=mobile&limit=20000');
     (t1||[]).forEach(r=>existingPhones.add((r.phone||'').replace(/\s/g,'')));
     (t2||[]).forEach(r=>existingPhones.add((r.mobile||'').replace(/\s/g,'')));
     (t3||[]).forEach(r=>existingCompanies.add((r.company||'').toLowerCase().trim()));
+    (t4||[]).forEach(r=>existingPhones.add((r.mobile||'').replace(/\s/g,'')));
     addProg(`Loaded ${existingPhones.size} existing phones + ${existingCompanies.size} companies for dedup`,'done');
   }catch(e){addProg('Dedup load failed — continuing without','err');}
 
@@ -686,8 +819,8 @@ async function runScrape(toRun,state,target,apifyKey){
 
   for(let i=0;i<toRun.length;i++){
     if(stopRequested)break;
-    if(target>0&&currentMobiles>=target){
-      addProg(`Target of ${target} mobiles reached — stopping.`,'done');
+    if(targetHit(currentMobiles,leads.length,target)){
+      addProg(`Target reached — stopping.`,'done');
       break;
     }
 
@@ -708,7 +841,7 @@ async function runScrape(toRun,state,target,apifyKey){
         const stateEncoded=encodeURIComponent(state);
         let page=1;
         while(!stopRequested){
-          if(target>0&&currentMobiles>=target){addProg(`Target of ${target} mobiles reached.`,'done');break;}
+          if(targetHit(currentMobiles,leads.length,target)){addProg(`Target reached.`,'done');break;}
           const url=`https://www.yellowpages.com.au/search?search_terms=${kwEncoded}&geo_location_terms=${stateEncoded}${page>1?`&page=${page}`:''}`;
           addProg(`YP: page ${page}...`,'');
           const pageItems=await runApify(apifyKey,YP_ACTOR,{searchUrl:url});
@@ -720,11 +853,19 @@ async function runScrape(toRun,state,target,apifyKey){
             const company=(item.name||item.businessName||item.title||'').trim();
             if(!company)continue;
             if(isBigFirm(company)){dupeCount++;continue;}// skip KPMG etc
+            // Filter junk keyword matches — e.g. "Auditore" matching "auditor"
+            // Only apply for professional services (landline mode)
+            if(!isMobileMode(document.getElementById('kwGroup').value)){
+              const kwLower=kw.toLowerCase();
+              const compLower=company.toLowerCase();
+              const kwPattern=new RegExp('(?:^|[^a-z])'+kwLower+'(?:s|ing|ed)?(?:[^a-z]|$)','i');
+              if(!kwPattern.test(compLower)){dupeCount++;continue;}
+            }
             if(phone){const pClean=phone.replace(/\s/g,'');if(existingPhones.has(pClean)){dupeCount++;continue;}existingPhones.add(pClean);}
             else{const cClean=company.toLowerCase().trim();if(existingCompanies.has(cClean)){dupeCount++;continue;}existingCompanies.add(cClean);}
             let suburb=item.suburb||item.city||item.location||item.area||(typeof item.address==='string'?item.address:'')||'';
             if(suburb.length>30){const parts=suburb.split(',').map(p=>p.trim());suburb=parts.length>=3?parts[parts.length-2].replace(/\s*\d{4}/,'').trim():parts[0];}
-            const lead={id:Date.now()+Math.random(),selected:true,company,phone:phone||null,isMobile:isMobile(phone),isWrongState:phone?isWrongState(phone,state):false,suburb,state:item.state||state,keyword:kw,source,sourceUrl:item.detailsPageUrl||item.url||null};
+            const lead={id:Date.now()+Math.random(),selected:true,company,phone:phone||null,isMobile:isMobile(phone),isWrongState:phone?isWrongState(phone,state):false,suburb,state:item.state||state,keyword:kw,source,sourceUrl:item.detailsPageUrl||item.url||null,contact:null,title:null,email:null,enriched:false};
             leads.push(lead);
             if(isMobile(phone))currentMobiles++;
           }
@@ -732,6 +873,34 @@ async function runScrape(toRun,state,target,apifyKey){
           document.getElementById('queueCount').textContent=`${currentMobiles} mobiles${target>0?' / '+target:''}`;
           page++;
           await new Promise(r=>setTimeout(r,2000));
+        }
+        // For real estate — Claude enrichment to find principal name + mobile
+        const group2=document.getElementById('kwGroup').value;
+        if(group2==='realestate'){
+          const apiKey=localStorage.getItem('tp_ak')||document.getElementById('apiKey').value.trim();
+          if(apiKey){
+            const toEnrich2=leads.filter(l=>l.source==='YP'&&!l.isMobile&&!l.enriched&&l.company);
+            addProg(`Real estate enrichment: ${toEnrich2.length} agencies to find principals...`,'');
+            for(let ei=0;ei<toEnrich2.length;ei++){
+              if(stopRequested||targetHit(currentMobiles,leads.length,target))break;
+              const el=toEnrich2[ei];
+              const prog2=addProg(`[${ei+1}/${toEnrich2.length}] ${el.company}`,'active');
+              const result=await callClaudeEnrich(apiKey,el.company,el.suburb,state,el.phone,el.sourceUrl,getTimeoutMs());
+              el.contact=result.contact||null;
+              el.title=result.title||null;
+              el.email=result.email||null;
+              el.enriched=true;
+              if(result.mobile){
+                el.phone=result.mobile;el.isMobile=true;
+                existingPhones.add(result.mobile.replace(/\s/g,''));
+                currentMobiles++;
+              }
+              prog2.className='prog-item done';
+              prog2.querySelector('span:last-child').textContent=`${el.company} — ${el.contact||'no name'}${result.mobile?' · '+result.mobile:' · no mobile'}`;
+              renderTable();updateStats();
+              await new Promise(r=>setTimeout(r,1500));
+            }
+          }
         }
         await saveRun(kw,state,'YP',leads.filter(l=>l.source==='YP').length,leads.filter(l=>l.source==='YP'&&l.isMobile).length,leads.filter(l=>l.source==='YP'&&l.phone&&!l.isMobile).length);
         await saveLeads(leads.filter(l=>l.source==='YP'));
@@ -754,7 +923,7 @@ async function runScrape(toRun,state,target,apifyKey){
         const postcodes=stateRegionPcs[state]||[4000];
         for(const pc of postcodes){
           if(stopRequested)break;
-          if(target>0&&currentMobiles>=target)break;
+          if(targetHit(currentMobiles,leads.length,target))break;
           addProg(`HP: "${kw}" postcode ${pc}...`,'');
           try{
             const pcItems=await runApify(apifyKey,HP_ACTOR,{category:kw,postcode:pc,sortBy:'Total Hired'});
@@ -887,7 +1056,10 @@ function renderTable(){
   }
   tbody.innerHTML=leads.map(l=>`<tr style="${l.isWrongState?'opacity:.6':''}">
     <td><input type="checkbox" ${l.selected?'checked':''} onchange="toggleSel(${l.id},this.checked)"/></td>
-    <td class="cell-primary" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.company}">${l.company}</td>
+    <td class="cell-primary" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.company}">
+      ${l.company}
+      ${l.contact?`<div style="font-size:11px;color:var(--accent2)">${l.contact}${l.title?' · <span style=\"color:var(--muted)\">${l.title}</span>':''}</div>`:''}
+    </td>
     <td class="cell-primary">${l.phone||'—'}${l.isWrongState?'<div style="font-size:10px;color:var(--warning)">⚠ wrong state area</div>':''}</td>
     <td>${l.isMobile?'<span class="badge badge-mobile">mobile</span>':l.phone?'<span class="badge badge-landline">landline</span>':'<span style="color:var(--muted);font-size:11px">none</span>'}</td>
     <td class="cell-dim">${l.suburb||'—'}</td>
@@ -921,10 +1093,16 @@ function exportCSV(mode){
   const state=document.getElementById('stateSelect').value;
   const group=document.getElementById('kwGroup').value;
   const groupLabel=KW_GROUPS[group]?.label||group;
-  const campaignName=`${groupLabel} — ${state}`;
+  const campaignInput=document.getElementById('campaignName').value.trim();
+  const campaignName=campaignInput||`${groupLabel} — ${state}`;
+  const ef=document.querySelector('input[name="ef"]:checked').value;
 
   let toExport=leads.filter(l=>l.selected&&l.company);
-  if(mode==='mobile')toExport=toExport.filter(l=>l.isMobile);
+  // Apply export filter
+  if(ef==='mobile'||mode==='mobile')toExport=toExport.filter(l=>l.isMobile);
+  else if(ef==='named_mobile')toExport=toExport.filter(l=>l.isMobile&&l.contact&&l.contact!=='—');
+  else if(ef==='email')toExport=toExport.filter(l=>l.email&&l.email!=='—');
+  else if(ef==='any_phone')toExport=toExport.filter(l=>l.phone);
 
   // Block wrong state numbers
   const wsBlocked=toExport.filter(l=>l.isWrongState).length;
@@ -941,19 +1119,26 @@ function exportCSV(mode){
   if(toExport.length===0){setStatus(`Nothing to export.${wsBlocked?' ('+wsBlocked+' wrong-state blocked)':''},'error`);return;}
 
   const headers=['Last Name','First Name','Title','Company','Phone','Mobile','Email','Website','City','Province (State)','Country','Industry','Lead Source','Lead Status','Campaign Name','Service Interest','Estimated Headcount Needed','Description'];
-  const rows=toExport.map(l=>['','',' ',l.company,
-    l.isMobile?'':l.phone||'',
-    l.isMobile?l.phone||'':'',
-    '','',l.suburb||'',l.state||state,'Australia',
-    groupLabel,'Business Prospector — Offshore 24/7','New',
-    campaignName,'Offshore Staffing','1-3',
-    `${l.source} · ${l.keyword} · ${l.sourceUrl||''}`
-  ]);
+  // Format mobile with leading zero preserved as text for Excel
+  const fmtMobile=m=>m?`="${m}"`:'';
+
+  const rows=toExport.map(l=>{
+    const ln=l.contact?l.contact.trim().split(/\s+/).slice(-1)[0]:'';
+    const fn=l.contact?l.contact.trim().split(/\s+/).slice(0,-1).join(' '):'';
+    return[ln,fn,l.title||'',l.company,
+      l.isMobile?'':l.phone||'',
+      l.isMobile?fmtMobile(l.phone):'',
+      l.email||'',l.sourceUrl||'',l.suburb||'',l.state||state,'Australia',
+      groupLabel,'Business Prospector — Offshore 24/7','New',
+      campaignName,'Offshore Staffing','1-3',
+      `${l.source} · ${l.keyword}`
+    ];
+  });
 
   const date=new Date().toISOString().slice(0,10);
   const filename=`zoho_${groupLabel.replace(/\s*\/\s*/g,'-').replace(/\s/g,'_')}_${state}_${date}${mode==='mobile'?'_mobiles_only':''}.csv`;
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
   setStatus(`Exported ${toExport.length} leads → ${filename}${wsBlocked?' · '+wsBlocked+' wrong-state blocked':''}${mode==='mobile'?' (mobiles only)':''}. Campaign: ${campaignName}`,'done');
