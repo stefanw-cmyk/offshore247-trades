@@ -941,7 +941,8 @@ async function runScrape(toRun,state,target,apifyKey){
 
       if(items.length>0)console.log('First item fields:',Object.keys(items[0]),items[0]);
       for(const item of items){
-        const rawPhone=item.phone||item.phoneNumber||item.mobile||item.contact_phone||
+        // HP actor returns both 'mobile' and 'phone' — prefer mobile
+        const rawPhone=item.mobile||item.phone||item.phoneNumber||item.contact_phone||
           (item.phones&&item.phones[0])||item.telephone||'';
         const phone=validatePhone(rawPhone);
         const company=(item.name||item.businessName||item.title||item.business_name||'').trim();
@@ -974,23 +975,13 @@ async function runScrape(toRun,state,target,apifyKey){
           else cleanSuburb=parts[0];
         }
 
-        // For Hipages — hard block results from wrong state based on suburb
-        if(source==='HP'&&suburb){
-          const nswSuburbs=['bankstown','yagoona','liverpool','rockdale','parramatta','mascot',
-            'concord west','cecilhills','cecil hills','revesby','hurstville','penrith',
-            'blacktown','sydney','newcastle','wollongong','gosford','campbelltown',
-            'cronulla','sutherland','manly','chatswood','hornsby'];
-          const vicSuburbs=['melbourne','geelong','ballarat','bendigo','frankston','dandenong',
-            'ringwood','box hill','richmond','st kilda'];
-          const waSuburbs=['perth','fremantle','mandurah','bunbury','joondalup','wanneroo'];
-          const saSuburbs=['adelaide','glenelg','unley','salisbury','elizabeth'];
-          const suburbLower=(suburb||'').toLowerCase().trim();
-          const wrongStateSuburbs={NSW:nswSuburbs,VIC:vicSuburbs,WA:waSuburbs,SA:saSuburbs};
-          let isWrongStateSub=false;
-          for(const[st,subs]of Object.entries(wrongStateSuburbs)){
-            if(st!==state&&subs.some(s=>suburbLower.includes(s))){isWrongStateSub=true;break;}
-          }
-          if(isWrongStateSub){dupes++;dupeCount++;continue;}
+        // For Hipages — filter wrong state using phone area code for landlines
+        // Mobile numbers (04xx) cannot be state-filtered by area code
+        if(source==='HP'){
+          // Filter by landline area code
+          if(phone&&!isMobile(phone)&&isWrongState(phone,state)){dupes++;dupeCount++;continue;}
+          // Filter test listings
+          if(/^(ntest|dung|test[0-9]|zztest)/i.test(company)||/test[0-9]{6,}/i.test(company)){dupes++;dupeCount++;continue;}
         }
 
         // Flag wrong state by area code (warn only — mobile numbers can't be checked this way)
